@@ -1,0 +1,29 @@
+{
+  "name": "pgfaas-api",
+  "version": "0.6.0-SNAPSHOT",
+  "description": "pgFaas API",
+  "key-words": [],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.11.0 <8.12.0",
+    "npm": ">=5.6.0"
+  },
+  "dependencies": {
+    "log4js": "^3.0.6",
+    "underscore": "^1.9.1",
+    "commander": "~2.19.0",
+    "express": "^4.16.2"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "rewire": "^4.0.1"
+  },
+  "scripts": {
+    "utest": ". ./configuration.sh; . ./secrets.sh; mocha --no-colors --timeout 20000 test/unit",
+    "uservertest": ". ./configuration.sh; . ./secrets.sh; mocha --no-colors --timeout 60000 test/server",
+    "itest": "export PGHOST='172.17.0.2'; mocha --no-colors --timeout 60000 test/integration",
+    "deploytest": "mocha --no-colors --timeout 60000 test/deployment",
+    "start": ". ./secrets.sh; . ./configuration.sh; node ./server/index.js --port ${PGFAAS_PORT} --openfaas ${OPENFAAS_URL} --openfaasauth ${OPENFAAS_AUTH} --loglevel ${PGFAAS_LOGLEVEL} --logtype ${PGFAAS_LOGTYPE}"
+  }
+}
