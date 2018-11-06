@@ -1,17 +1,36 @@
-# pgFaas - PostGresql Functions As A Service
+# pgFaas API
 
-Proof-of-concept of a FaaS on PostGIS. The 
+The API of pgFaas allows to deploy/update and delete pgFaas functions through a ReST interface. 
 
 
-## Requirements
+## Pre-requirements
 
-* mocha 2.5.x (glabally installed)
-* Node.js 8.x.x 
-* osm2pgsql 0.94.x
-* bzip2 1.0.x
-* An instance of OpenFaas (see next chapter to deploy one)
-* An instance of PostgreSQL (see next chapter to deploy one)
-* A Docker registry
+* Node.js 8.11
+* NPM 5.6
+* Mocha 2.5.x (globally installed)
+
+
+## Installation
+
+```
+  npm install
+```
+
+
+## Tests
+
+
+### Unit tests
+```
+  npm run utest
+```
+
+
+### Integration tests
+
+```
+  npm run itest
+```
 
 
 ### Set configuration 

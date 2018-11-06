@@ -10,6 +10,14 @@ const http = require('http');
 const lib = require('./lib.js');
 
 module.exports = (LOGGER, ofOptions) => {
+
+  /**
+   * Returns version information
+   */
+  router.get('/version', (req, res) => {
+    lib.headers(res).status(200).json({version: require('../package.json').version});
+  });
+
   /**
    * Creates a namespace
    */
@@ -110,7 +118,6 @@ module.exports = (LOGGER, ofOptions) => {
           body += chunk;
         });
         ofRes.on('end', () => {
-          console.log(`XXXXXXXX ${body}`); // XXX
           return lib.processResponse(res, ofRes, body);
         });
       }

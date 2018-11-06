@@ -12,7 +12,7 @@ var pgFaas;
 describe('pgFaas server', () => {
 
   before((done) => {
-    pgFaas = spawn(['node', './server/index.js',
+    pgFaas = spawn(['node', './server/app.js',
         '--port', httpOptions.port,
         '--image', `${process.env.DOCKER_REGISTRY}/pgfaas-node:${process.env.PGFAAS_NODE_VERSION}`,
         '--openfaas', 'http://103.6.252.7:8080',

@@ -1,8 +1,9 @@
 const {assert} = require('chai');
 const rewire = require('rewire');
 const _ = require('underscore');
-const http = require('http');
+const testData = require('./data.json');
 const {spawn, exec, fork} = require('child_process');
+const http = require('http');
 const httpOptions = {
   timeout: 60000,
   hostname: 'localhost', port: 3010,
@@ -11,39 +12,55 @@ const httpOptions = {
 
 const api = rewire('../../server/api.js');
 const data = JSON.parse(require('fs').readFileSync('./test/unit/data.json'));
-const mockHttp = {};
+
+class MockResponse extends require('events').EventEmitter {
+  constructor({statusCode, body}) {
+    super();
+    this.body = JSON.stringify(body);
+    this.statusCode = statusCode;
+    setTimeout(() => {
+      this.emit('data', this.body);
+      this.emit('end');
+    }, 500);
+  };
+};
+const mockHttp = {
+  request: (options, callback) => {
+    const responses = testData[options.method + options.path];
+    callback(new MockResponse(responses.results[responses.count++]));
+    return {
+      end: () => {
+      }
+    };
+  },
+};
 api.__set__({http: mockHttp});
 
 describe('API', () => {
 
   before((done) => {
-    pgFaas = spawn(['node', './server/app.js',
-        '--port', httpOptions.port,
-        '--image', `${process.env.DOCKER_REGISTRY}/pgfaas-node:${process.env.PGFAAS_NODE_VERSION}`,
-        '--openfaas', 'http://103.6.252.7:8080',
-        '--openfaasauth', 'username:password',
-        '--loglevel', 'debug',
-        '--logtype', 'file'].join(' '),
-      {cwd: process.env.PWD, shell: '/bin/bash'});
+    const express = require('express');
+    const app = express();
+    app.use(express.urlencoded({extended: true}));
+    app.use(express.json());
+    const lib = require('../../server/lib.js');
+    app.use('/', api(lib.setLogger({image: 'node-pgfaas'}), {
+        path: '/system/functions',
+        pathname: '/system/functions',
+        username: '',
+        password: '',
+        timeout: 60000,
+        headers: {
+          'Accept': '*/*',
+          'Cache-Control': 'no-cache',
+          'Content-Type': 'application/json',
+        }
+      })
+    );
 
-    pgFaas.stdout.on('data', (data) => {
-      console.log(`PGFAAS: ${data}`);
+    app.listen(3010, () => {
+      done();
     });
-
-    pgFaas.stderr.on('data', (data) => {
-      console.log(`PGFAAS ERROR: ${data}`);
-    });
-
-    setTimeout(done, 2000);
-  });
-
-  process.on('exit', () => {
-    pgFaas.kill();
-  });
-
-  after((done) => {
-    pgFaas.kill();
-    done();
   });
 
   it('OpenFaas response processing', (done) => {
@@ -57,24 +74,43 @@ describe('API', () => {
     done();
   });
 
+  it('Version information', (done) => {
+    const payload = {
+      name: 'simple',
+    };
+    http.request(_.extend(_.clone(httpOptions), {path: '/version', method: 'GET'}),
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          assert.equal(res.statusCode, 200);
+          assert.equal(JSON.parse(body).version, require('../../package.json').version);
+          done();
+        });
+      }
+    ).end(JSON.stringify(payload));
+  });
+
   /* TODO
-    it('Namespace creation #1', (done) => {
-      const payload = {
-        name: 'simple',
-      };
-      http.request(_.extend(_.clone(httpOptions), {path: '/', method: 'POST'}),
-        (res) => {
-          let body = '';
-          res.on('data', (chunk) => {
-            body += chunk;
-          });
-          res.on('end', () => {
-            assert.equal(res.statusCode, 200);
-            done();
-          });
-        }
-      ).end(JSON.stringify(payload));
-    });
+  it('Namespace creation #1', (done) => {
+    const payload = {
+      name: 'simple',
+    };
+    http.request(_.extend(_.clone(httpOptions), {path: '/', method: 'POST'}),
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          assert.equal(res.statusCode, 200);
+          done();
+        });
+      }
+    ).end(JSON.stringify(payload));
+  });
 
     it('Namespace delete #1', (done) => {
       http.request(_.extend(_.clone(httpOptions), {path: '/simple', method: 'DELETE'}),
@@ -184,7 +220,7 @@ describe('API', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 404);
-          setTimeout(done, 20000);
+          setTimeout(done, 500);
         });
       }
     ).end();
@@ -204,7 +240,7 @@ describe('API', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          setTimeout(done, 20000);
+          setTimeout(done, 500);
         });
       }
     ).end(JSON.stringify(payload));
@@ -227,7 +263,6 @@ describe('API', () => {
       }
     ).end(JSON.stringify(payload));
   });
-
   it('Function plus invocation #2 (success)', (done) => {
     const payload = {
       verb: 'plus', a: 1, b: 2
@@ -246,7 +281,6 @@ describe('API', () => {
       }
     ).end(JSON.stringify(payload));
   });
-
   it('Function details #2', (done) => {
     http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaas-express', method: 'GET'}),
       (res) => {
@@ -329,13 +363,12 @@ describe('API', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          setTimeout(done, 20000);
+          setTimeout(done, 500);
         });
       }
     ).end();
   });
 
-  /* FIXME
   it('Function invocation #3 (missing)', (done) => {
     http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaas-express', method: 'POST'}),
       (res) => {
@@ -350,6 +383,5 @@ describe('API', () => {
       }
     ).end(JSON.stringify({verb: 'echo'}));
   });
-*/
 
 });

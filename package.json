@@ -20,10 +20,9 @@
     "rewire": "^4.0.1"
   },
   "scripts": {
-    "utest": ". ./configuration.sh; . ./secrets.sh; mocha --no-colors --timeout 20000 test/unit",
-    "uservertest": ". ./configuration.sh; . ./secrets.sh; mocha --no-colors --timeout 60000 test/server",
-    "itest": "export PGHOST='172.17.0.2'; mocha --no-colors --timeout 60000 test/integration",
+    "utest": "mocha --no-colors --timeout 20000 test/unit",
+    "itest": ". ./configuration.sh; . ./secrets.sh; mocha --no-colors --timeout 60000 test/integration",
     "deploytest": "mocha --no-colors --timeout 60000 test/deployment",
-    "start": ". ./secrets.sh; . ./configuration.sh; node ./server/index.js --port ${PGFAAS_PORT} --openfaas ${OPENFAAS_URL} --openfaasauth ${OPENFAAS_AUTH} --loglevel ${PGFAAS_LOGLEVEL} --logtype ${PGFAAS_LOGTYPE}"
+    "start": ". ./secrets.sh; . ./configuration.sh; node ./server/app.js --port ${PGFAAS_PORT} --openfaas ${OPENFAAS_URL} --openfaasauth ${OPENFAAS_AUTH} --loglevel ${PGFAAS_LOGLEVEL} --logtype ${PGFAAS_LOGTYPE}"
   }
 }
