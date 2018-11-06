@@ -1,7 +1,6 @@
 const {assert} = require('chai');
 const rewire = require('rewire');
 const _ = require('underscore');
-const testData = require('./data.json');
 const {spawn, exec, fork} = require('child_process');
 const http = require('http');
 const httpOptions = {
@@ -10,9 +9,11 @@ const httpOptions = {
   headers: {'Content-Type': 'application/json'}
 };
 
+/**
+ * Mocks OpenFaas responses according to the contents of data.json
+ */
 const api = rewire('../../server/api.js');
-const data = JSON.parse(require('fs').readFileSync('./test/unit/data.json'));
-
+const testData = require('./data.json');
 class MockResponse extends require('events').EventEmitter {
   constructor({statusCode, body}) {
     super();
@@ -36,17 +37,20 @@ const mockHttp = {
 };
 api.__set__({http: mockHttp});
 
+/**
+ * Test cases
+ */
 describe('API', () => {
 
   before((done) => {
+    const config = require('../../config/config.js').getProperties();
     const express = require('express');
     const app = express();
     app.use(express.urlencoded({extended: true}));
     app.use(express.json());
     const lib = require('../../server/lib.js');
-    app.use('/', api(lib.setLogger({image: 'node-pgfaas'}), {
+    app.use('/', api(lib.init(config), {
         path: '/system/functions',
-        pathname: '/system/functions',
         username: '',
         password: '',
         timeout: 60000,

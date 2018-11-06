@@ -5,24 +5,24 @@
 const pack = require('../package.json');
 const log4js = require('log4js');
 const _ = require('underscore');
-var program;
+let config;
 
 /**
  * Sets the logger
  */
 module.exports = {
 
-  setLogger: (programIn) => {
-    program = programIn;
+  init: (configIn) => {
+    config= configIn;
     log4js.configure({
       appenders: {
-        file: {type: 'file', filename: `/var/log/pgfass-server.log`},
+        file: {type: 'file', filename: config.logfile, maxLogSize: 10 * 1024 * 1024},
         stdout: {type: 'stdout'}
       },
       categories: {
         default: {
-          appenders: [program.logtype || process.env.PGFAAS_LOGTYPE || 'stdout'],
-          level: program.loglevel || process.env.PGFAAS_LOGLEVEL || 'info'
+          appenders: [config.logtype],
+          level: config.loglevel
         }
       }
     });
@@ -52,18 +52,17 @@ module.exports = {
    * @return (String|Object) body
    */
   setFunctionBody: (name, sourcecode, test) => {
-    // FIXME: use parameters  for all values and avoid env vars or program
     return JSON.stringify({
       "name": name,
-      "image": program.image,
+      "image": config.image,
       "replicas": 1,
       "envProcess": "",
       "network": "",
       "service": name,
       "envVars": {
-        PGHOST: process.env.PGHOST, PGPORT: process.env.PGPORT,
-        PGDATABASE: process.env.PGDATABASE, PGSCHEMA: process.env.PGSCHEMA,
-        PGUSER: process.env.PGUSER, PGPASSWORD: process.env.PGPASSWORD,
+        PGHOST: config.pghost, PGPORT: String(config.pgport),
+        PGDATABASE: config.pgdatabase, PGSCHEMA: config.pgschema,
+        PGUSER: config.pguser, PGPASSWORD: config.pgpassword,
         SCRIPT: sourcecode,
         TEST: _.isString(test) ? test : JSON.stringify(test)
       },
