@@ -28,6 +28,6 @@
     "utest": "export NODE_ENV=test; mocha --no-colors --timeout 20000 test/unit",
     "itest": "export NODE_ENV=test; mocha --no-colors --timeout 60000 test/integration",
     "deploytest": "mocha --no-colors --timeout 60000 test/deployment",
-    "start": ". ./secrets.sh; . ./configuration.sh; node ./server/app.js --port ${PGFAAS_PORT} --openfaas ${OPENFAAS_URL} --openfaasauth ${OPENFAAS_AUTH} --loglevel ${PGFAAS_LOGLEVEL} --logtype ${PGFAAS_LOGTYPE}"
+    "start": "node ./server/app.js --openfaas http://103.6.252.7:8080"
   }
 }

@@ -14,7 +14,7 @@ const config = convict({
   openfaas: {
     doc: 'The OpenFaas URL.',
     format: 'url',
-    default: 'http://103.6.252.7:8080',
+    default: 'http://127.0.0.1:8080',
     env: 'OPENFAAS_URL',
     arg: 'openfaas'
   },
@@ -42,7 +42,7 @@ const config = convict({
   logfile: {
     doc: 'The complete log file path.',
     format: '*',
-    default: '`/var/log/pgfass-server.log`',
+    default: '/var/log/pgfass-server.log',
     env: 'PGFAAS_LOGFILE',
     arg: 'logfile'
   },
