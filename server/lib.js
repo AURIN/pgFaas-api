@@ -5,15 +5,21 @@
 const pack = require('../package.json');
 const log4js = require('log4js');
 const _ = require('underscore');
+const {Client} = require('pg');
+const nameSep = '___';
+const nameRE = '^([a-z0-9])+$';
 let config;
+let client;
 
-/**
- * Sets the logger
- */
 module.exports = {
 
+  /**
+   * Initializartion
+   * @param configIn (Object) flat object with name of property - value
+   * @returns {Logger}
+   */
   init: (configIn) => {
-    config= configIn;
+    config = configIn;
     log4js.configure({
       appenders: {
         file: {type: 'file', filename: config.logfile, maxLogSize: 10 * 1024 * 1024},
@@ -33,13 +39,47 @@ module.exports = {
       })
       .on('uncaughtException', err => {
         log4js.getLogger().error(`Uncaught Exception thrown ${err.message} ${err.stack}`);
-//    process.exit(1);
       })
       .on('exit', () => {
         log4js.getLogger().info(`pgFaas ${pack.version} about to shut down`);
       });
 
+    // TODO
+//    client= module.exports.connectToPG(config);
+
     return log4js.getLogger();
+  },
+
+  /**
+   * Check the correctness of function name or namespace
+   * @param name (String)
+   * @returns (Boolean) Wthere the name is correct or not
+   */
+  isNameCorrect: (name) => {
+    return (new RegExp(nameRE)).test(name);
+  },
+
+  /**
+   * Compose a complete function name
+   * @param namespace (String)
+   * @param name (String) Name of funciton
+   * @returns (String) complete function name
+   */
+  composeFunctionName: (namespace, name) => {
+    return `${namespace}${nameSep}${name}`;
+  },
+
+  /**
+   * Returns namespace and name of a function
+   * @param name (String) Complete function name
+   * @returns (Object) {namespace, name}
+   */
+  splitFunctionName: (name) => {
+    if (_.isNull(name) || _.isUndefined(name) || !name.includes(nameSep)) {
+      return {namespace: '', name: (_.isNull(name) || _.isUndefined(name)) ? '' : name};
+    } else {
+      return {namespace: name.split(nameSep)[0], name: name.split(nameSep)[1]};
+    }
   },
 
   /**
@@ -139,11 +179,19 @@ module.exports = {
    * @return Object Enriched server response
    */
   processResponse: (res, ofRes, body) => {
-    log4js.getLogger().debug(`
-        Response
-        status
-        from
-        OpenFaas: ${ofRes.statusCode} body: ${JSON.stringify(module.exports.processBody(body))}`);
+    log4js.getLogger().debug(`Response status from OpenFaas: ${ofRes.statusCode} body: ${JSON.stringify(module.exports.processBody(body))}`);
+    const bodyOut = module.exports.processBody(body);
+    bodyOut.name = module.exports.splitFunctionName(bodyOut.name).name;
+    bodyOut.service = module.exports.splitFunctionName(bodyOut.service).name;
     return module.exports.headers(res).status(ofRes.statusCode).json(module.exports.processBody(body));
+  },
+
+  /**
+   * Connects to PostgreSQL
+   */
+  connectToPG: ({pghost, pgport, pgdatabase, pguser, pgpassword}) => {
+    const client = new Client(options);
+    client.connect();
+    return client;
   }
 };

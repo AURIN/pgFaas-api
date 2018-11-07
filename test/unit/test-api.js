@@ -1,7 +1,7 @@
 const {assert} = require('chai');
 const rewire = require('rewire');
 const _ = require('underscore');
-const {spawn, exec, fork} = require('child_process');
+const lib = require('../../server/lib.js');
 const http = require('http');
 const httpOptions = {
   timeout: 60000,
@@ -14,6 +14,7 @@ const httpOptions = {
  */
 const api = rewire('../../server/api.js');
 const testData = require('./data.json');
+
 class MockResponse extends require('events').EventEmitter {
   constructor({statusCode, body}) {
     super();
@@ -22,7 +23,7 @@ class MockResponse extends require('events').EventEmitter {
     setTimeout(() => {
       this.emit('data', this.body);
       this.emit('end');
-    }, 500);
+    }, 200);
   };
 };
 const mockHttp = {
@@ -68,13 +69,41 @@ describe('API', () => {
   });
 
   it('OpenFaas response processing', (done) => {
-    const lib = require('../../server/lib.js');
-    assert(lib.processBody("Stringy"), {message: 'Stringy'});
+    assert(lib.processBody('Stringy'), {message: 'Stringy'});
     assert(lib.processBody(), {message: ''});
     assert(lib.processBody(null), {message: ''});
     assert(lib.processBody(''), {message: ''});
     assert(lib.processBody({a: 1}), {message: {a: 1}});
     assert(lib.processBody('{a:1}'), {message: {a: 1}});
+    done();
+  });
+
+  it('Name correctness', (done) => {
+    assert.equal(lib.isNameCorrect('aaaAAA'), false);
+    assert.equal(lib.isNameCorrect('111AAA'), false);
+    assert.equal(lib.isNameCorrect('aaa bbb'), false);
+    assert.equal(lib.isNameCorrect('aaa+bbb'), false);
+    assert.equal(lib.isNameCorrect('aaa/bbb'), false);
+    assert.equal(lib.isNameCorrect('aaa_bbb'), false);
+    assert.equal(lib.isNameCorrect('AAA'), false);
+    assert.equal(lib.isNameCorrect('aaa'), true);
+    assert.equal(lib.isNameCorrect('111'), true);
+    assert.equal(lib.isNameCorrect('aaa111'), true);
+    assert.equal(lib.isNameCorrect('111aaa'), true);
+    done();
+  });
+
+  it('Function name', (done) => {
+    assert(lib.composeFunctionName('aaa', 'bbb'), 'aaa___bbb');
+    assert(lib.composeFunctionName('', 'bbb'), '___bbb');
+    assert(lib.composeFunctionName('aaa', ''), 'aaa___');
+    assert(lib.splitFunctionName('aaa___bbb'), {namespace: 'aaa', name: 'bbb'});
+    assert(lib.splitFunctionName('___bbb'), {namespace: '', name: 'bbb'});
+    assert(lib.splitFunctionName('aaa___'), {namespace: 'aaa', name: ''});
+    assert(lib.splitFunctionName('bbb'), {namespace: '', name: 'bbb'});
+    assert(lib.splitFunctionName(''), {namespace: '', name: ''});
+    assert(lib.splitFunctionName(null), {namespace: '', name: ''});
+    assert(lib.splitFunctionName(undefined), {namespace: '', name: ''});
     done();
   });
 
@@ -97,7 +126,42 @@ describe('API', () => {
     ).end(JSON.stringify(payload));
   });
 
-  /* TODO
+  it('Namespaces list', (done) => {
+    http.request(_.extend(_.clone(httpOptions), {path: '/', method: 'GET'}),
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          assert.equal(res.statusCode, 200);
+          assert.equal(JSON.parse(body).length, 2);
+          assert.equal(JSON.parse(body)[0], 'complex');
+          assert.equal(JSON.parse(body)[1], 'simple');
+          assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
+          assert.equal(res.headers['access-control-allow-origin'], '*');
+          done();
+        });
+      }
+    ).end();
+  });
+
+  it('Namespace functions list #1', (done) => {
+    http.request(_.extend(_.clone(httpOptions), {path: '/simple', method: 'GET'}),
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          assert.equal(res.statusCode, 200);
+          assert.equal(JSON.parse(body).length, 3);
+          done();
+        });
+      }
+    ).end();
+  });
+
   it('Namespace creation #1', (done) => {
     const payload = {
       name: 'simple',
@@ -116,40 +180,22 @@ describe('API', () => {
     ).end(JSON.stringify(payload));
   });
 
-    it('Namespace delete #1', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/simple', method: 'DELETE'}),
-        (res) => {
-          let body = '';
-          res.on('data', (chunk) => {
-            body += chunk;
-          });
-          res.on('end', () => {
-            assert.equal(res.statusCode, 200);
-            done();
-          });
-        }
-      ).end();
-    });
+  it('Namespace delete #1', (done) => {
+    http.request(_.extend(_.clone(httpOptions), {path: '/simple', method: 'DELETE'}),
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          assert.equal(res.statusCode, 200);
+          done();
+        });
+      }
+    ).end();
+  });
 
-    it('Namespaces list', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/', method: 'GET'}),
-        (res) => {
-          let body = '';
-          res.on('data', (chunk) => {
-            body += chunk;
-          });
-          res.on('end', () => {
-            assert.equal(res.statusCode, 200);
-            assert.equal(JSON.parse(body).length, 2);
-            assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
-            assert.equal(res.headers['access-control-allow-origin'], '*');
-            done();
-          });
-        }
-      ).end();
-    });
-  */
-  it('Functions list', (done) => {
+  it('Namespace functions list #2', (done) => {
     http.request(_.extend(_.clone(httpOptions), {path: '/simple', method: 'GET'}),
       (res) => {
         let body = '';
@@ -158,7 +204,7 @@ describe('API', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          assert.equal(JSON.parse(body).length > 0, true);
+          assert.equal(JSON.parse(body).length, 0);
           done();
         });
       }
@@ -166,7 +212,7 @@ describe('API', () => {
   });
 
   it('Function details #1', (done) => {
-    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaas-express', method: 'GET'}),
+    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'GET'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {
@@ -180,7 +226,7 @@ describe('API', () => {
     ).end();
   });
 
-  it('Function creation #1 (error)', (done) => {
+  it('Function creation #2 (missing parameter error)', (done) => {
     http.request(_.extend(_.clone(httpOptions), {path: '/simple', method: 'POST'}),
       (res) => {
         let body = '';
@@ -195,9 +241,29 @@ describe('API', () => {
     ).end(JSON.stringify({t: 1, z: 2}));
   });
 
-  it('Function creation #2 (error missing verb)', (done) => {
+  it('Function creation #3 (incorrect name error)', (done) => {
     const payload = {
       name: 'pgfaas-express',
+      sourcecode: require('fs').readFileSync('./test/integration/script-express.js', 'utf-8'),
+      test: {verb: 'plus', a: 1, b: 2}
+    };
+    http.request(_.extend(_.clone(httpOptions), {path: '/simple', method: 'POST'}),
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          assert.equal(res.statusCode, 400);
+          done();
+        });
+      }
+    ).end(JSON.stringify(payload));
+  });
+
+  it('Function creation #4 (missing verb error)', (done) => {
+    const payload = {
+      name: 'pgfaasexpress',
       sourcecode: require('fs').readFileSync('./test/integration/script-express.js', 'utf-8'),
       test: {a: 1, b: 2}
     };
@@ -215,8 +281,8 @@ describe('API', () => {
     ).end(JSON.stringify(payload));
   });
 
-  it('Function delete #1', (done) => {
-    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaas-express', method: 'DELETE'}),
+  it('Function delete #1 (error)', (done) => {
+    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'DELETE'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {
@@ -230,9 +296,9 @@ describe('API', () => {
     ).end();
   });
 
-  it('Function creation #3 (success)', (done) => {
+  it('Function creation #5 (success)', (done) => {
     const payload = {
-      name: 'pgfaas-express',
+      name: 'pgfaasexpress',
       sourcecode: require('fs').readFileSync('./test/integration/script-express.js', 'utf-8'),
       test: {verb: 'plus', a: 1, b: 2}
     };
@@ -254,7 +320,7 @@ describe('API', () => {
     const payload = {
       a: 1, b: 2
     };
-    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaas-express', method: 'POST'}),
+    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'POST'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {
@@ -271,7 +337,7 @@ describe('API', () => {
     const payload = {
       verb: 'plus', a: 1, b: 2
     };
-    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaas-express', method: 'POST'}),
+    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'POST'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {
@@ -286,7 +352,7 @@ describe('API', () => {
     ).end(JSON.stringify(payload));
   });
   it('Function details #2', (done) => {
-    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaas-express', method: 'GET'}),
+    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'GET'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {
@@ -294,7 +360,7 @@ describe('API', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          assert.equal(JSON.parse(body).name, "pgfaas-express");
+          assert.equal(JSON.parse(body).name, "pgfaasexpress");
           assert.equal(true, _.isString(JSON.parse(body).sourcecode));
           assert.equal(1, JSON.parse(JSON.parse(body).test).a);
           assert.equal(2, JSON.parse(JSON.parse(body).test).b);
@@ -305,7 +371,7 @@ describe('API', () => {
   });
 
   it('Function update #1 (error)', (done) => {
-    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaas-express', method: 'PUT'}),
+    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'PUT'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {
@@ -324,7 +390,7 @@ describe('API', () => {
       sourcecode: require('fs').readFileSync('./test/integration/script-express.js', 'utf-8'),
       test: {verb: 'plus', a: 2, b: 4}
     };
-    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaas-express', method: 'PUT'}),
+    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'PUT'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {
@@ -339,7 +405,7 @@ describe('API', () => {
   });
 
   it('Function details #3', (done) => {
-    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaas-express', method: 'GET'}),
+    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'GET'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {
@@ -347,7 +413,7 @@ describe('API', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          assert.equal(JSON.parse(body).name, "pgfaas-express");
+          assert.equal(JSON.parse(body).name, "pgfaasexpress");
           assert.equal(true, _.isString(JSON.parse(body).sourcecode));
           assert.equal('plus', JSON.parse(JSON.parse(body).test).verb);
           assert.equal(2, JSON.parse(JSON.parse(body).test).a);
@@ -358,8 +424,8 @@ describe('API', () => {
     ).end();
   });
 
-  it('Function delete #1', (done) => {
-    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaas-express', method: 'DELETE'}),
+  it('Function delete #2 (success)', (done) => {
+    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'DELETE'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {
@@ -367,14 +433,14 @@ describe('API', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          setTimeout(done, 500);
+          done();
         });
       }
     ).end();
   });
 
   it('Function invocation #3 (missing)', (done) => {
-    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaas-express', method: 'POST'}),
+    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'POST'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {
@@ -388,4 +454,50 @@ describe('API', () => {
     ).end(JSON.stringify({verb: 'echo'}));
   });
 
+  it('Tables list', (done) => {
+    http.request(_.extend(_.clone(httpOptions), {path: '/tables', method: 'GET'}),
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          assert.equal(res.statusCode, 200);
+          assert.equal(JSON.parse(body).length, 3);
+          done();
+        });
+      }
+    ).end();
+  });
+
+  it('Table details (missing table)', (done) => {
+    http.request(_.extend(_.clone(httpOptions), {path: '/tables/test', method: 'GET'}),
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          assert.equal(res.statusCode, 404);
+          done();
+        });
+      }
+    ).end();
+  });
+
+  it('Table details (success)', (done) => {
+    http.request(_.extend(_.clone(httpOptions), {path: '/tables/roads', method: 'GET'}),
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          assert.equal(res.statusCode, 200);
+          assert.equal(JSON.parse(body).length, 10);
+          done();
+        });
+      }
+    ).end();
+  });
 });

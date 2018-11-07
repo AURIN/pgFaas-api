@@ -15,7 +15,7 @@
         "statusCode": 200,
         "body": [
           {
-            "name": "inception",
+            "name": "simple___inception",
             "image": "alexellis/inception:2.1",
             "invocationCount": 0,
             "replicas": 1,
@@ -28,7 +28,7 @@
             "annotations": null
           },
           {
-            "name": "nodeinfo",
+            "name": "simple___nodeinfo",
             "image": "functions/nodeinfo:latest",
             "invocationCount": 0,
             "replicas": 1,
@@ -57,7 +57,7 @@
             }
           },
           {
-            "name": "haveibeenpwned",
+            "name": "complex___haveibeenpwned",
             "image": "functions/haveibeenpwned:0.1",
             "invocationCount": 0,
             "replicas": 1,
@@ -70,7 +70,7 @@
             "annotations": null
           },
           {
-            "name": "dazzling_dijkstra",
+            "name": "complex___dazzling_dijkstra",
             "image": "cuttlefish.eresearch.unimelb.edu.au/pgfaas-node:latest",
             "invocationCount": 53,
             "replicas": 1,
@@ -86,7 +86,7 @@
             }
           },
           {
-            "name": "cows",
+            "name": "complex___cows",
             "image": "alexellis2/ascii-cows-openfaas:0.1",
             "invocationCount": 0,
             "replicas": 1,
@@ -99,7 +99,7 @@
             "annotations": null
           },
           {
-            "name": "math",
+            "name": "simple___math",
             "image": "cuttlefish.eresearch.unimelb.edu.au/pgfaas-node:latest",
             "invocationCount": 1,
             "replicas": 1,
@@ -115,10 +115,282 @@
             }
           }
         ]
+      },
+      {
+        "statusCode": 200,
+        "body": [
+          {
+            "name": "simple___inception",
+            "image": "alexellis/inception:2.1",
+            "invocationCount": 0,
+            "replicas": 1,
+            "envProcess": "python3 index.py",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "inception",
+              "function": "true"
+            },
+            "annotations": null
+          },
+          {
+            "name": "simple___nodeinfo",
+            "image": "functions/nodeinfo:latest",
+            "invocationCount": 0,
+            "replicas": 1,
+            "envProcess": "node main.js",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "nodeinfo",
+              "function": "true"
+            },
+            "annotations": null
+          },
+          {
+            "name": "new_f",
+            "image": "cuttlefish.eresearch.unimelb.edu.au/pgfaas-node:latest",
+            "invocationCount": 0,
+            "replicas": 1,
+            "envProcess": "",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "new_f",
+              "function": "true"
+            },
+            "annotations": {
+              "sourcecode": "{ \"verb\": 2}",
+              "test": "\"{a : \\\"hello\\\" } \""
+            }
+          },
+          {
+            "name": "complex___haveibeenpwned",
+            "image": "functions/haveibeenpwned:0.1",
+            "invocationCount": 0,
+            "replicas": 1,
+            "envProcess": "",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "haveibeenpwned",
+              "function": "true"
+            },
+            "annotations": null
+          },
+          {
+            "name": "complex___dazzling_dijkstra",
+            "image": "cuttlefish.eresearch.unimelb.edu.au/pgfaas-node:latest",
+            "invocationCount": 53,
+            "replicas": 1,
+            "envProcess": "",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "",
+              "function": "true"
+            },
+            "annotations": {
+              "sourcecode": "module.exports = {\n  echo: (sqlexec, req, callback) =\u003e {\n    return callback(null, req.body);\n  },\n  plus: (sqlexec, req, callback) =\u003e {\n    return callback(null, {c: req.body.a + req.body.b});\n  },\n  headers: (sqlexec, req, callback) =\u003e {\n    return callback(null, req.headers);\n  }\n};\n",
+              "test": "{\"a\":1,\"b\":2}"
+            }
+          },
+          {
+            "name": "complex___cows",
+            "image": "alexellis2/ascii-cows-openfaas:0.1",
+            "invocationCount": 0,
+            "replicas": 1,
+            "envProcess": "node show_cow.js",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "cows",
+              "function": "true"
+            },
+            "annotations": null
+          },
+          {
+            "name": "simple___math",
+            "image": "cuttlefish.eresearch.unimelb.edu.au/pgfaas-node:latest",
+            "invocationCount": 1,
+            "replicas": 1,
+            "envProcess": "",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "math",
+              "function": "true"
+            },
+            "annotations": {
+              "sourcecode": "module.exports = {\n  plus: (sqlexec, req, callback) =\u003e {\n    return callback(null, {c: req.body.a + req.body.b});\n  },\n  times: (sqlexec, req, callback) =\u003e {\n    return callback(null, {c: req.body.a * req.body.b});\n  }\n};\n ",
+              "test": "\"{\\\"verb\\\":\\\"times\\\", \\\"a\\\":3,\\\"b\\\":4}\\n \""
+            }
+          }
+        ]
+      },      {
+        "statusCode": 200,
+        "body": [
+          {
+            "name": "simple___inception",
+            "image": "alexellis/inception:2.1",
+            "invocationCount": 0,
+            "replicas": 1,
+            "envProcess": "python3 index.py",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "inception",
+              "function": "true"
+            },
+            "annotations": null
+          },
+          {
+            "name": "simple___nodeinfo",
+            "image": "functions/nodeinfo:latest",
+            "invocationCount": 0,
+            "replicas": 1,
+            "envProcess": "node main.js",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "nodeinfo",
+              "function": "true"
+            },
+            "annotations": null
+          },
+          {
+            "name": "new_f",
+            "image": "cuttlefish.eresearch.unimelb.edu.au/pgfaas-node:latest",
+            "invocationCount": 0,
+            "replicas": 1,
+            "envProcess": "",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "new_f",
+              "function": "true"
+            },
+            "annotations": {
+              "sourcecode": "{ \"verb\": 2}",
+              "test": "\"{a : \\\"hello\\\" } \""
+            }
+          },
+          {
+            "name": "complex___haveibeenpwned",
+            "image": "functions/haveibeenpwned:0.1",
+            "invocationCount": 0,
+            "replicas": 1,
+            "envProcess": "",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "haveibeenpwned",
+              "function": "true"
+            },
+            "annotations": null
+          },
+          {
+            "name": "complex___dazzling_dijkstra",
+            "image": "cuttlefish.eresearch.unimelb.edu.au/pgfaas-node:latest",
+            "invocationCount": 53,
+            "replicas": 1,
+            "envProcess": "",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "",
+              "function": "true"
+            },
+            "annotations": {
+              "sourcecode": "module.exports = {\n  echo: (sqlexec, req, callback) =\u003e {\n    return callback(null, req.body);\n  },\n  plus: (sqlexec, req, callback) =\u003e {\n    return callback(null, {c: req.body.a + req.body.b});\n  },\n  headers: (sqlexec, req, callback) =\u003e {\n    return callback(null, req.headers);\n  }\n};\n",
+              "test": "{\"a\":1,\"b\":2}"
+            }
+          },
+          {
+            "name": "complex___cows",
+            "image": "alexellis2/ascii-cows-openfaas:0.1",
+            "invocationCount": 0,
+            "replicas": 1,
+            "envProcess": "node show_cow.js",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "cows",
+              "function": "true"
+            },
+            "annotations": null
+          },
+          {
+            "name": "simple___math",
+            "image": "cuttlefish.eresearch.unimelb.edu.au/pgfaas-node:latest",
+            "invocationCount": 1,
+            "replicas": 1,
+            "envProcess": "",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "math",
+              "function": "true"
+            },
+            "annotations": {
+              "sourcecode": "module.exports = {\n  plus: (sqlexec, req, callback) =\u003e {\n    return callback(null, {c: req.body.a + req.body.b});\n  },\n  times: (sqlexec, req, callback) =\u003e {\n    return callback(null, {c: req.body.a * req.body.b});\n  }\n};\n ",
+              "test": "\"{\\\"verb\\\":\\\"times\\\", \\\"a\\\":3,\\\"b\\\":4}\\n \""
+            }
+          }
+        ]
+      },
+      {
+        "statusCode": 200,
+        "body": [
+          {
+            "name": "complex___new_f",
+            "image": "cuttlefish.eresearch.unimelb.edu.au/pgfaas-node:latest",
+            "invocationCount": 0,
+            "replicas": 1,
+            "envProcess": "",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "new_f",
+              "function": "true"
+            },
+            "annotations": {
+              "sourcecode": "{ \"verb\": 2}",
+              "test": "\"{a : \\\"hello\\\" } \""
+            }
+          },
+          {
+            "name": "complex___haveibeenpwned",
+            "image": "functions/haveibeenpwned:0.1",
+            "invocationCount": 0,
+            "replicas": 1,
+            "envProcess": "",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "haveibeenpwned",
+              "function": "true"
+            },
+            "annotations": null
+          },
+          {
+            "name": "complex___dazzling_dijkstra",
+            "image": "cuttlefish.eresearch.unimelb.edu.au/pgfaas-node:latest",
+            "invocationCount": 53,
+            "replicas": 1,
+            "envProcess": "",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "",
+              "function": "true"
+            },
+            "annotations": {
+              "sourcecode": "module.exports = {\n  echo: (sqlexec, req, callback) =\u003e {\n    return callback(null, req.body);\n  },\n  plus: (sqlexec, req, callback) =\u003e {\n    return callback(null, {c: req.body.a + req.body.b});\n  },\n  headers: (sqlexec, req, callback) =\u003e {\n    return callback(null, req.headers);\n  }\n};\n",
+              "test": "{\"a\":1,\"b\":2}"
+            }
+          },
+          {
+            "name": "complex___cows",
+            "image": "alexellis2/ascii-cows-openfaas:0.1",
+            "invocationCount": 0,
+            "replicas": 1,
+            "envProcess": "node show_cow.js",
+            "availableReplicas": 0,
+            "labels": {
+              "com.openfaas.function": "cows",
+              "function": "true"
+            },
+            "annotations": null
+          }
+        ]
       }
     ]
   },
-  "GET/system/function/pgfaas-express": {
+  "GET/system/function/simple___pgfaasexpress": {
     "count": 0,
     "results": [
       {
@@ -129,12 +401,12 @@
       {
         "statusCode": 200,
         "body": {
-          "name": "pgfaas-express",
+          "name": "simple___pgfaasexpress",
           "image": "cuttlefish.eresearch.unimelb.edu.au/pgfaas-node:latest",
           "replicas": 1,
           "envProcess": "",
           "network": "",
-          "service": "pgfaas-express",
+          "service": "simple___pgfaasexpress",
           "envVars": {
             "PGHOST": "10.0.2.17",
             "PGPORT": "5432",
@@ -148,7 +420,7 @@
             "com.openfaas.scale.min": "1",
             "com.openfaas.scale.max": "2",
             "com.openfaas.scale.factor": "10",
-            "com.openfaas.function": "pgfaas-express",
+            "com.openfaas.function": "pgfaasexpress",
             "function": "true"
           },
           "annotations": {
@@ -168,12 +440,12 @@
       {
         "statusCode": 200,
         "body": {
-          "name": "pgfaas-express",
+          "name": "simple___pgfaasexpress",
           "image": "cuttlefish.eresearch.unimelb.edu.au/pgfaas-node:latest",
           "replicas": 1,
           "envProcess": "",
           "network": "",
-          "service": "pgfaas-express",
+          "service": "simple___pgfaasexpress",
           "envVars": {
             "PGHOST": "10.0.2.17",
             "PGPORT": "5432",
@@ -187,7 +459,7 @@
             "com.openfaas.scale.min": "1",
             "com.openfaas.scale.max": "2",
             "com.openfaas.scale.factor": "10",
-            "com.openfaas.function": "pgfaas-express",
+            "com.openfaas.function": "pgfaasexpress",
             "function": "true"
           },
           "annotations": {
@@ -206,7 +478,7 @@
       }
     ]
   },
-  "POST/function/pgfaas-express": {
+  "POST/function/simple___pgfaasexpress": {
     "count": 0,
     "results": [
       {
@@ -227,12 +499,12 @@
       {
         "statusCode": 200,
         "body": {
-          "name": "pgfaas-express",
+          "name": "simple___pgfaasexpress",
           "image": "cuttlefish.eresearch.unimelb.edu.au/pgfaas-node:latest",
           "replicas": 1,
           "envProcess": "",
           "network": "",
-          "service": "pgfaas-express",
+          "service": "simple___pgfaasexpress",
           "envVars": {
             "PGHOST": "10.0.2.17",
             "PGPORT": "5432",
@@ -246,7 +518,7 @@
             "com.openfaas.scale.min": "1",
             "com.openfaas.scale.max": "2",
             "com.openfaas.scale.factor": "10",
-            "com.openfaas.function": "pgfaas-express",
+            "com.openfaas.function": "pgfaasexpress",
             "function": "true"
           },
           "annotations": {
@@ -268,6 +540,21 @@
   "DELETE/system/functions": {
     "count": 0,
     "results": [
+      {
+        "statusCode": 200,
+        "body": {
+        }
+      },
+      {
+        "statusCode": 200,
+        "body": {
+        }
+      },
+      {
+        "statusCode": 200,
+        "body": {
+        }
+      },
       {
         "statusCode": 404,
         "body": {
