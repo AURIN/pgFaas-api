@@ -6,6 +6,7 @@
 
 const router = require('express').Router();
 const _ = require('underscore');
+const {eachSeries} = require('async');
 const http = require('http');
 const lib = require('./lib.js');
 
@@ -46,7 +47,6 @@ module.exports = (LOGGER, ofOptions) => {
         ofRes.on('end', () => {
           if (ofRes.statusCode === 200) {
             const namespaces = _.map(JSON.parse(body), (func) => {
-              console.log(`>>>>>>>> list namespaces ${func.name}`); // XXX
               return lib.splitFunctionName(func.name).namespace;
             });
             return lib.processResponse(res, ofRes, _.uniq(_.filter(namespaces, (ns) => {
@@ -64,8 +64,46 @@ module.exports = (LOGGER, ofOptions) => {
    * Deletes a namespace
    */
   router.delete('/:namespace', (req, res) => {
-    // TODO: deletes all functions in a namespace
-    lib.headers(res).status(200).json({message: `Namespace ${req.params.namespace} deleted`});
+    LOGGER.debug(`DELETE ${req.params.namespace} (namespace deletion)`);
+    http.request(_.extend(_.clone(ofOptions), {method: 'GET', path: '/system/functions'}),
+      (ofRes) => {
+        let body = '';
+        ofRes.on('data', (chunk) => {
+          body += chunk;
+        });
+        ofRes.on('end', () => {
+          if (ofRes.statusCode === 200) {
+            eachSeries(_.filter(JSON.parse(body), (elem) => {
+              return lib.splitFunctionName(elem.name).namespace === req.params.namespace;
+            }), (func, done) => {
+              let bodyReq = JSON.stringify({
+                functionName: func.name
+              });
+              http.request(_.extend(_.clone(ofOptions), {
+                method: 'DELETE',
+                path: '/system/functions',
+                headers: lib.setContentLength(ofOptions.headers, bodyReq)
+              }), (delRes) => {
+                let delBody = '';
+                delRes.on('data', (chunk) => {
+                  delBody += chunk;
+                });
+                delRes.on('end', () => {
+                  done();
+                });
+              }).end(bodyReq);
+            }, (err) => {
+              if (err) {
+                LOGGER.error(err.message);
+              }
+              return lib.headers(res).status(200).json({message: `Namespace ${req.params.namespace} deleted`});
+            });
+          } else {
+            return lib.processResponse(res, ofRes, body);
+          }
+        });
+      }
+    ).end();
   });
 
   /**
@@ -83,7 +121,6 @@ module.exports = (LOGGER, ofOptions) => {
         ofRes.on('end', () => {
           if (ofRes.statusCode === 200) {
             return lib.processResponse(res, ofRes, _.filter(JSON.parse(body), (func) => {
-              console.log(`>>>>>>>> list functions ${func.name}`); // XXX
               return lib.splitFunctionName(func.name).namespace === req.params.namespace;
             }));
           } else {

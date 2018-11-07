@@ -98,7 +98,6 @@ describe('pgFaas server', () => {
           body += chunk;
         });
         res.on('end', () => {
-          console.log(`>>>>>>>>>>>>> namespaces ${body}`); // XXX
           assert.equal(res.statusCode, 200);
           assert.equal(JSON.parse(body).length, 1);
           done();
@@ -116,7 +115,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          done();
+          setTimeout(done, 20000);
         });
       }
     ).end();
@@ -138,6 +137,26 @@ describe('pgFaas server', () => {
     ).end();
   });
 
+  it('Function creation #2 (success)', (done) => {
+    const payload = {
+      name: 'pgfaasexpress',
+      sourcecode: require('fs').readFileSync('./test/integration/script-express.js', 'utf-8'),
+      test: {verb: 'plus', a: 1, b: 2}
+    };
+    http.request(_.extend(_.clone(httpOptions), {path: '/simple', method: 'POST'}),
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          assert.equal(res.statusCode, 200);
+          setTimeout(done, 20000);
+        });
+      }
+    ).end(JSON.stringify(payload));
+  });
+
   it('Namespaces list #2', (done) => {
     http.request(_.extend(_.clone(httpOptions), {path: '/', method: 'GET'}),
       (res) => {
@@ -147,8 +166,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          console.log(`>>>>>>>>>>>>> namespaces ${body}`); // XXX
-          assert.equal(JSON.parse(body).length, 2);
+          assert.equal(JSON.parse(body).length, 1);
           assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
           assert.equal(res.headers['access-control-allow-origin'], '*');
           done();
@@ -181,14 +199,14 @@ describe('pgFaas server', () => {
           body += chunk;
         });
         res.on('end', () => {
-          assert.equal(res.statusCode, 404);
+          assert.equal(res.statusCode, 200);
           done();
         });
       }
     ).end();
   });
 
-  it('Function creation #2 (error)', (done) => {
+  it('Function creation #3 (error)', (done) => {
     http.request(_.extend(_.clone(httpOptions), {path: '/simple', method: 'POST'}),
       (res) => {
         let body = '';
@@ -203,7 +221,7 @@ describe('pgFaas server', () => {
     ).end(JSON.stringify({t: 1, z: 2}));
   });
 
-  it('Function creation #3 (error missing verb)', (done) => {
+  it('Function creation #4 (error missing verb)', (done) => {
     const payload = {
       name: 'pgfaasexpress',
       sourcecode: require('fs').readFileSync('./test/integration/script-express.js', 'utf-8'),
@@ -231,7 +249,7 @@ describe('pgFaas server', () => {
           body += chunk;
         });
         res.on('end', () => {
-          assert.equal(res.statusCode, 404);
+          assert.equal(res.statusCode, 200);
           setTimeout(done, 20000);
         });
       }
@@ -342,7 +360,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          done();
+          setTimeout(done, 20000);
         });
       }
     ).end(JSON.stringify(payload));

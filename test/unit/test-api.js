@@ -281,7 +281,7 @@ describe('API', () => {
     ).end(JSON.stringify(payload));
   });
 
-  it('Function delete #1', (done) => {
+  it('Function delete #1 (error)', (done) => {
     http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'DELETE'}),
       (res) => {
         let body = '';
@@ -424,7 +424,7 @@ describe('API', () => {
     ).end();
   });
 
-  it('Function delete #1', (done) => {
+  it('Function delete #2 (success)', (done) => {
     http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'DELETE'}),
       (res) => {
         let body = '';
@@ -433,7 +433,7 @@ describe('API', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          setTimeout(done, 500);
+          done();
         });
       }
     ).end();
