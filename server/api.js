@@ -217,8 +217,8 @@ module.exports = (LOGGER, pgclient, ofOptions) => {
 
     const bodyReq = lib.setFunctionBody(
       lib.composeFunctionName(req.params.namespace, req.body.name),
-      req.body.sourcecode, req.body.test);
-
+      req.body.sourcecode,
+      req.body.test);
     http.request(_.extend(_.clone(ofOptions), {
         method: 'POST',
         path: '/system/functions',

@@ -58,8 +58,8 @@ class Client {
  */
 const api = rewire('../../server/api.js');
 const lib = rewire('../../server/lib.js');
-api.__set__({http: mockHttp});
 lib.__set__({Client: Client});
+api.__set__({http: mockHttp, lib: lib});
 
 /**
  * Test cases

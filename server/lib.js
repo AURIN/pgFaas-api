@@ -19,6 +19,7 @@ module.exports = {
    */
   init: (configIn) => {
     config = configIn;
+
     log4js.configure({
       appenders: {
         file: {type: 'file', filename: config.logfile, maxLogSize: 10 * 1024 * 1024},
@@ -85,7 +86,7 @@ module.exports = {
    * @param name String Function name
    * @param sourcecode String Function script
    * @param test String Test data
-   * @return (String|Object) body
+   * @return (String) body
    */
   setFunctionBody: (name, sourcecode, test) => {
     return JSON.stringify({
