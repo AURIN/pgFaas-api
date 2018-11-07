@@ -10,13 +10,45 @@ const {eachSeries} = require('async');
 const http = require('http');
 const lib = require('./lib.js');
 
-module.exports = (LOGGER, ofOptions) => {
+module.exports = (LOGGER, pgclient, ofOptions) => {
 
   /**
    * Returns version information
    */
   router.get('/version', (req, res) => {
     lib.headers(res).status(200).json({version: require('../package.json').version});
+  });
+
+  /**
+   * Return an Array of tables
+   */
+  router.get('/tables/:schema', (req, res) => {
+    LOGGER.debug(`GET /tables/${req.params.schema} (tables list)`);
+    pgClient.query('SELECT * FROM pg_catalog.pg_tables WHERE schemaname = $1',
+      [req.params.schema], (err, result) => {
+        if (err) {
+          return lib.processResponse(res, err, {});
+        } else
+          return lib.processResponse(res, {statusCode: 200}, _.map(result.rows, (table) => {
+            return `${table.tablename}`;
+          }).sort());
+      });
+  });
+
+  /**
+   * Return an Array of columns
+   */
+  router.get('/tables/:schema/:table', (req, res) => {
+    LOGGER.debug(`GET /tables/${req.params.schema}/${req.params.table} (columns list)`);
+    pgClient.query('SELECT * FROM information_schema.columns WHERE table_schema = $1 AND table_name = $2',
+      [req.params.schema, req.params.table], (err, result) => {
+        if (err) {
+          return lib.processResponse(res, err, {});
+        } else
+          return lib.processResponse(res, {statusCode: 200}, _.map(result.rows, (column) => {
+            return `${column.column_name}(${column.data_type})`;
+          }).sort());
+      });
   });
 
   /**

@@ -1,7 +1,6 @@
 const {assert} = require('chai');
 const rewire = require('rewire');
 const _ = require('underscore');
-const lib = require('../../server/lib.js');
 const http = require('http');
 const httpOptions = {
   timeout: 60000,
@@ -10,10 +9,9 @@ const httpOptions = {
 };
 
 /**
- * Mocks OpenFaas responses according to the contents of data.json
+ * Mocks OpenFaas responses
  */
-const api = rewire('../../server/api.js');
-const testData = require('./data.json');
+const testData = require('./dataOF.json');
 
 class MockResponse extends require('events').EventEmitter {
   constructor({statusCode, body}) {
@@ -36,7 +34,32 @@ const mockHttp = {
     };
   },
 };
+
+/**
+ * Mocks PostgreSQL client
+ */
+const testPGdata = JSON.parse(require('fs').readFileSync('./test/unit/dataPG.json'));
+
+class Client {
+  constructor(options) {
+    this.connect = () => {
+      return true;
+    };
+    this.end = () => {
+    };
+    this.query = (sql, params, cb) => {
+      return cb(testPGdata[sql].err, testPGdata[sql]);
+    };
+  }
+};
+
+/**
+ * Injects mocks
+ */
+const api = rewire('../../server/api.js');
+const lib = rewire('../../server/lib.js');
 api.__set__({http: mockHttp});
+lib.__set__({Client: Client});
 
 /**
  * Test cases
@@ -49,8 +72,7 @@ describe('API', () => {
     const app = express();
     app.use(express.urlencoded({extended: true}));
     app.use(express.json());
-    const lib = require('../../server/lib.js');
-    app.use('/', api(lib.init(config), {
+    app.use('/', api(lib.init(config), lib.connectToPG(config), {
         path: '/system/functions',
         username: '',
         password: '',
@@ -455,7 +477,7 @@ describe('API', () => {
   });
 
   it('Tables list', (done) => {
-    http.request(_.extend(_.clone(httpOptions), {path: '/tables', method: 'GET'}),
+    http.request(_.extend(_.clone(httpOptions), {path: '/tables/public', method: 'GET'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {
@@ -464,21 +486,7 @@ describe('API', () => {
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
           assert.equal(JSON.parse(body).length, 3);
-          done();
-        });
-      }
-    ).end();
-  });
-
-  it('Table details (missing table)', (done) => {
-    http.request(_.extend(_.clone(httpOptions), {path: '/tables/test', method: 'GET'}),
-      (res) => {
-        let body = '';
-        res.on('data', (chunk) => {
-          body += chunk;
-        });
-        res.on('end', () => {
-          assert.equal(res.statusCode, 404);
+          assert.equal(JSON.parse(body)[0], 'discount');
           done();
         });
       }
@@ -486,7 +494,7 @@ describe('API', () => {
   });
 
   it('Table details (success)', (done) => {
-    http.request(_.extend(_.clone(httpOptions), {path: '/tables/roads', method: 'GET'}),
+    http.request(_.extend(_.clone(httpOptions), {path: '/tables/public/roads', method: 'GET'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {
@@ -494,7 +502,8 @@ describe('API', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          assert.equal(JSON.parse(body).length, 10);
+          assert.equal(JSON.parse(body).length, 18);
+          assert.equal(JSON.parse(body)[0], 'dr_akd1(numeric)');
           done();
         });
       }
