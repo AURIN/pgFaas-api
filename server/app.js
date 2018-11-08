@@ -22,6 +22,7 @@ app.use(express.json());
 app.use('/', require('./api.js')(
   lib.init(config),
   lib.connectToPG(config),
+  config,
   _.extend(_.clone(new url.URL(config.openfaas)),
     {
       path: '/system/functions',

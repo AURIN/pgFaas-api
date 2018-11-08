@@ -10,7 +10,7 @@ const {eachSeries} = require('async');
 const http = require('http');
 const lib = require('./lib.js');
 
-module.exports = (LOGGER, pgclient, ofOptions) => {
+module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
 
   /**
    * Returns version information
@@ -22,32 +22,37 @@ module.exports = (LOGGER, pgclient, ofOptions) => {
   /**
    * Return an Array of tables
    */
-  router.get('/tables/:schema', (req, res) => {
-    LOGGER.debug(`GET /tables/${req.params.schema} (tables list)`);
+  router.get('/tables/', (req, res) => {
+
+    LOGGER.debug(`GET /tables (tables list)`);
     pgClient.query('SELECT * FROM pg_catalog.pg_tables WHERE schemaname = $1',
-      [req.params.schema], (err, result) => {
+      [pgOptions.pgschema], (err, result) => {
         if (err) {
-          return lib.processResponse(res, err, {});
+          return lib.processResponse(res, {statusCode: 500}, JSON.stringify(err));
         } else
-          return lib.processResponse(res, {statusCode: 200}, _.map(result.rows, (table) => {
-            return `${table.tablename}`;
-          }).sort());
+          return lib.processResponse(res, {statusCode: 200},
+            _.map(result.rows, (table) => {
+              return `${table.tablename}`;
+            }).sort());
       });
   });
 
   /**
    * Return an Array of columns
    */
-  router.get('/tables/:schema/:table', (req, res) => {
-    LOGGER.debug(`GET /tables/${req.params.schema}/${req.params.table} (columns list)`);
+  router.get('/tables/:table', (req, res) => {
+
+    LOGGER.debug(`GET /tables/${req.params.table} (columns list)`);
     pgClient.query('SELECT * FROM information_schema.columns WHERE table_schema = $1 AND table_name = $2',
-      [req.params.schema, req.params.table], (err, result) => {
+      [pgOptions.pgschema, req.params.table], (err, result) => {
         if (err) {
-          return lib.processResponse(res, err, {});
-        } else
-          return lib.processResponse(res, {statusCode: 200}, _.map(result.rows, (column) => {
-            return `${column.column_name}(${column.data_type})`;
-          }).sort());
+          return lib.processResponse(res, {statusCode: 500}, JSON.stringify(err));
+        } else if (result.rows.length === 0) {
+          return lib.processResponse(res, {statusCode: 404}, "Table not found");
+        }
+        return lib.processResponse(res, {statusCode: 200}, _.map(result.rows, (column) => {
+          return `${column.column_name}(${column.data_type})`;
+        }).sort());
       });
   });
 
@@ -56,8 +61,8 @@ module.exports = (LOGGER, pgclient, ofOptions) => {
    * TODO: it does not do anything, since the current implementation uses function names
    */
   router.post('/', (req, res) => {
-    LOGGER.debug(`POST ${req.params.namespace} (create namespace)`);
 
+    LOGGER.debug(`POST ${req.params.namespace} (create namespace)`);
     if (req.body.name) {
       lib.headers(res).status(200).json({message: `Namespace ${req.body.name} created`});
     } else {

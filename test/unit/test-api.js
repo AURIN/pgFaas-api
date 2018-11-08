@@ -72,7 +72,7 @@ describe('API', () => {
     const app = express();
     app.use(express.urlencoded({extended: true}));
     app.use(express.json());
-    app.use('/', api(lib.init(config), lib.connectToPG(config), {
+    app.use('/', api(lib.init(config), lib.connectToPG(config), config, {
         path: '/system/functions',
         username: '',
         password: '',
@@ -477,7 +477,7 @@ describe('API', () => {
   });
 
   it('Tables list', (done) => {
-    http.request(_.extend(_.clone(httpOptions), {path: '/tables/public', method: 'GET'}),
+    http.request(_.extend(_.clone(httpOptions), {path: '/tables', method: 'GET'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {
@@ -494,7 +494,7 @@ describe('API', () => {
   });
 
   it('Table details (success)', (done) => {
-    http.request(_.extend(_.clone(httpOptions), {path: '/tables/public/roads', method: 'GET'}),
+    http.request(_.extend(_.clone(httpOptions), {path: '/tables/roads', method: 'GET'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {

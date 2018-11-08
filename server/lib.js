@@ -13,7 +13,7 @@ let config;
 module.exports = {
 
   /**
-   * Initializartion
+   * Initialization
    * @param configIn (Object) flat object with name of property - value
    * @returns {Logger}
    */
@@ -187,7 +187,13 @@ module.exports = {
    * Connects to PostgreSQL
    */
   connectToPG: (config) => {
-    pgClient = new Client (config);
+    pgClient = new Client({
+      user: config.pguser,
+      database: config.pgdatabase,
+      port: config.pgport,
+      host: config.pghost,
+      password: config.pgpassword
+    });
     pgClient.connect();
     return pgClient;
   }
