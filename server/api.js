@@ -22,7 +22,7 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
   /**
    * Return an Array of tables
    */
-  router.get('/database/tables/', (req, res) => {
+  router.get('/database/tables', (req, res) => {
 
     LOGGER.debug(`GET /database/tables (tables list)`);
     pgClient.query('SELECT * FROM pg_catalog.pg_tables WHERE schemaname = $1',
@@ -64,7 +64,7 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
 
     LOGGER.debug(`POST /function/namespaces ${req.params.namespace} (create namespace)`);
     if (req.body.name) {
-      lib.headers(res).status(200).json({message: `Namespace ${req.body.name} created`});
+      lib.headers(res).status(201).json({message: `Namespace ${req.body.name} created`});
     } else {
       lib.headers(res).status(400).json({message: "Missing parameter"});
     }
@@ -159,7 +159,7 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
           if (ofRes.statusCode === 200) {
             return lib.processResponse(res, ofRes, _.filter(JSON.parse(body), (func) => {
               return lib.splitFunctionName(func.name).namespace === req.params.namespace;
-            }));
+            }).sort());
           } else {
             return lib.processResponse(res, ofRes, body);
           }
@@ -235,7 +235,7 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
           body += chunk;
         });
         ofRes.on('end', () => {
-          return lib.processResponse(res, ofRes, body);
+          return lib.processResponse(res, {statusCode: 201}, body);
         });
       }
     ).end(bodyReq);

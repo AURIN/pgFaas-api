@@ -71,10 +71,14 @@ Once a pgFaas API has been deployed on a server, it can be checked running these
 ```
 
 
-## Starting
+## Starting the application
 
 The API can run once a OpenFaas instance has been deployed (its URL can be passed on the CLI with the `openfaas` option).
 ```
   npm run start
 ```
 
+
+## Documentation
+
+The API is documented using Swagger in the YAML file `pgfaas-swagger.yaml`. For a better view of it, load the file into `https://editor.swagger.io/`.

@@ -1,0 +1,240 @@
+swagger: "2.0"
+info:
+  version: "1.0"
+  title: "pgFaas"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "pgfaas.swagger.io"
+basePath: "/v2"
+schemes:
+- "https"
+- "http"
+
+paths:
+
+  /database/tables:
+    get:
+      summary: "Tables in the database"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ArrayOfStrings"
+              
+  /database/tables/{table}:
+    parameters:
+      - name: "table"
+        in: "path"
+        description: "Database table"
+        required: true
+        type: "string"
+    get:
+      summary: "Columns in a table"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ArrayOfStrings"
+        404:
+          description: "table not found"
+          schema:
+            $ref: "#/definitions/Message"
+          
+  /function/namespaces:
+    get:
+      summary: "List the namespaces"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ArrayOfStrings"
+    post:
+      summary: "Add a namespace (IT DOES NOTHING, SO FAR)"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Pet object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/Namespace"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Message"
+        400:
+          description: "invalid parameter"
+          schema:
+            $ref: "#/definitions/Message"
+    delete:
+      summary: "Deletes a namespace"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Message"
+        500:
+          description: "error"
+          schema:
+            $ref: "#/definitions/Message"
+          
+  /function/namespaces/{namespace}:
+    parameters:
+      - name: "namespace"
+        in: "path"
+        description: "Namespace of functions"
+        required: true
+        type: "string"
+    get:
+      summary: "List the available functions in a namespace"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "ArrayOfStrings"
+    post:
+      summary: "Adds a function"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/Function"
+      responses:
+        201:
+          description: "successful creation"
+          schema:
+            $ref: "#/definitions/Function"        
+        400:
+          description: "invalid parameter"      
+          schema:
+            $ref: "#/definitions/Message"
+    delete:
+      summary: "Deletes a namespace and all the functions in it"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Message"
+        404:
+          description: "namespace not found" 
+          schema:
+            $ref: "#/definitions/Message"
+
+  /function/namespaces/{namespace}/{function}:
+    parameters:
+      - name: "namespace"
+        in: "path"
+        description: "Namespace of functions"
+        required: true
+        type: "string"
+      - name: "function"
+        in: "path"
+        description: "Names of a function"
+        required: true
+        type: "string"
+    get:
+      summary: "Returns the function definition"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Function"
+        404:
+          description: "namespace or function not found" 
+          schema:
+            $ref: "#/definitions/Message"
+    put:
+      summary: "Updates a function"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+        404:
+          description: "namespace not found" 
+    delete:
+      summary: "Deletes a function"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Message"
+        404:
+          description: "namespace not found" 
+          schema:
+            $ref: "#/definitions/Message"
+    post:
+      summary: "Invokes a function"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          description: "test input parameters (it must have a 'verb' String property)"
+          type: "object"
+      responses:
+        200:
+          description: "successful operaiton"
+          schema:
+            type: "object"        
+        500:
+          description: "error"      
+          schema:
+            $ref: "#/definitions/Message"
+
+definitions:
+  ArrayOfStrings:
+    type: "array"
+    items:
+      $ref: "String"
+  Message:
+    type: "object"
+    properties:
+      message:
+        type: "string"
+  Namespace:
+    type: "object"
+    properties:
+      namespace:
+        type: "string"
+  Function:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "function name"
+      sourcecode:
+        type: "string"
+        description: "function source code"
+      test:
+        type: "object"
+        description: "test input parameters (it must have a 'verb' String property)"
+

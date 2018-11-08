@@ -94,7 +94,7 @@ describe('pgFaas server', () => {
             body += chunk;
           });
           res.on('end', () => {
-            assert.equal(res.statusCode, 200);
+            assert.equal(res.statusCode, 201);
             done();
           });
         }
@@ -114,7 +114,7 @@ describe('pgFaas server', () => {
             body += chunk;
           });
           res.on('end', () => {
-            assert.equal(res.statusCode, 200);
+            assert.equal(res.statusCode, 201);
             setTimeout(done, 20000);
           });
         }
@@ -197,7 +197,7 @@ describe('pgFaas server', () => {
             body += chunk;
           });
           res.on('end', () => {
-            assert.equal(res.statusCode, 200);
+            assert.equal(res.statusCode, 201);
             setTimeout(done, 20000);
           });
         }
@@ -316,7 +316,7 @@ describe('pgFaas server', () => {
             body += chunk;
           });
           res.on('end', () => {
-            assert.equal(res.statusCode, 200);
+            assert.equal(res.statusCode, 201);
             setTimeout(done, 20000);
           });
         }
