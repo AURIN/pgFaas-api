@@ -37,7 +37,7 @@ describe('pgFaas server', () => {
   });
 
     it('Tables list', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/tables', method: 'GET'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/database/tables', method: 'GET'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -53,7 +53,7 @@ describe('pgFaas server', () => {
     });
 
     it('Columns list #1 (error)', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/tables/xxx', method: 'GET'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/database/tables/xxx', method: 'GET'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -68,7 +68,7 @@ describe('pgFaas server', () => {
     });
 
   it('Columns list #2 (success)', (done) => {
-    http.request(_.extend(_.clone(httpOptions), {path: '/tables/planet_osm_roads', method: 'GET'}),
+    http.request(_.extend(_.clone(httpOptions), {path: '/database/tables/planet_osm_roads', method: 'GET'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {
@@ -87,7 +87,7 @@ describe('pgFaas server', () => {
       const payload = {
         name: 'simple',
       };
-      http.request(_.extend(_.clone(httpOptions), {path: '/', method: 'POST'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces', method: 'POST'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -107,7 +107,7 @@ describe('pgFaas server', () => {
         sourcecode: require('fs').readFileSync('./test/integration/script-express.js', 'utf-8'),
         test: {verb: 'plus', a: 1, b: 2}
       };
-      http.request(_.extend(_.clone(httpOptions), {path: '/testns', method: 'POST'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/testns', method: 'POST'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -122,7 +122,7 @@ describe('pgFaas server', () => {
     });
 
     it('Functions list testns #1', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/testns', method: 'GET'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/testns', method: 'GET'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -138,7 +138,7 @@ describe('pgFaas server', () => {
     });
 
     it('Namespaces list #1', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/', method: 'GET'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/', method: 'GET'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -154,7 +154,7 @@ describe('pgFaas server', () => {
     });
 
     it('Namespace delete #1', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/testns', method: 'DELETE'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/testns', method: 'DELETE'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -169,7 +169,7 @@ describe('pgFaas server', () => {
     });
 
     it('Functions list testns #2', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/testns', method: 'GET'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/testns', method: 'GET'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -190,7 +190,7 @@ describe('pgFaas server', () => {
         sourcecode: require('fs').readFileSync('./test/integration/script-express.js', 'utf-8'),
         test: {verb: 'plus', a: 1, b: 2}
       };
-      http.request(_.extend(_.clone(httpOptions), {path: '/simple', method: 'POST'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple', method: 'POST'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -205,7 +205,7 @@ describe('pgFaas server', () => {
     });
 
     it('Namespaces list #2', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/', method: 'GET'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces', method: 'GET'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -223,7 +223,7 @@ describe('pgFaas server', () => {
     });
 
     it('Functions list', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/simple', method: 'GET'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple', method: 'GET'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -239,7 +239,7 @@ describe('pgFaas server', () => {
     });
 
     it('Function details #1', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'GET'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple/pgfaasexpress', method: 'GET'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -254,7 +254,7 @@ describe('pgFaas server', () => {
     });
 
     it('Function creation #3 (error)', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/simple', method: 'POST'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple', method: 'POST'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -274,7 +274,7 @@ describe('pgFaas server', () => {
         sourcecode: require('fs').readFileSync('./test/integration/script-express.js', 'utf-8'),
         test: {a: 1, b: 2}
       };
-      http.request(_.extend(_.clone(httpOptions), {path: '/simple', method: 'POST'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple', method: 'POST'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -289,7 +289,7 @@ describe('pgFaas server', () => {
     });
 
     it('Function delete #1', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'DELETE'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple/pgfaasexpress', method: 'DELETE'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -309,7 +309,7 @@ describe('pgFaas server', () => {
         sourcecode: require('fs').readFileSync('./test/integration/script-express.js', 'utf-8'),
         test: {verb: 'plus', a: 1, b: 2}
       };
-      http.request(_.extend(_.clone(httpOptions), {path: '/simple', method: 'POST'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple', method: 'POST'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -327,7 +327,7 @@ describe('pgFaas server', () => {
       const payload = {
         a: 1, b: 2
       };
-      http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'POST'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple/pgfaasexpress', method: 'POST'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -345,7 +345,7 @@ describe('pgFaas server', () => {
       const payload = {
         verb: 'plus', a: 1, b: 2
       };
-      http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'POST'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple/pgfaasexpress', method: 'POST'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -361,7 +361,7 @@ describe('pgFaas server', () => {
     });
 
     it('Function details #2', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'GET'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple/pgfaasexpress', method: 'GET'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -380,7 +380,7 @@ describe('pgFaas server', () => {
     });
 
     it('Function update #1 (error)', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'PUT'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple/pgfaasexpress', method: 'PUT'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -399,7 +399,7 @@ describe('pgFaas server', () => {
         sourcecode: require('fs').readFileSync('./test/integration/script-express.js', 'utf-8'),
         test: {verb: 'plus', a: 2, b: 4}
       };
-      http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'PUT'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple/pgfaasexpress', method: 'PUT'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -414,7 +414,7 @@ describe('pgFaas server', () => {
     });
 
     it('Function details #3', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'GET'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple/pgfaasexpress', method: 'GET'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -434,7 +434,7 @@ describe('pgFaas server', () => {
     });
 
     it('Function delete #1', (done) => {
-      http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'DELETE'}),
+      http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple/pgfaasexpress', method: 'DELETE'}),
         (res) => {
           let body = '';
           res.on('data', (chunk) => {
@@ -450,7 +450,7 @@ describe('pgFaas server', () => {
 
   /* FIXME
   it('Function invocation #3 (missing)', (done) => {
-    http.request(_.extend(_.clone(httpOptions), {path: '/simple/pgfaasexpress', method: 'POST'}),
+    http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple/pgfaasexpress', method: 'POST'}),
       (res) => {
         let body = '';
         res.on('data', (chunk) => {

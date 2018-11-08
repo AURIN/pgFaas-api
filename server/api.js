@@ -22,9 +22,9 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
   /**
    * Return an Array of tables
    */
-  router.get('/tables/', (req, res) => {
+  router.get('/database/tables/', (req, res) => {
 
-    LOGGER.debug(`GET /tables (tables list)`);
+    LOGGER.debug(`GET /database/tables (tables list)`);
     pgClient.query('SELECT * FROM pg_catalog.pg_tables WHERE schemaname = $1',
       [pgOptions.pgschema], (err, result) => {
         if (err) {
@@ -40,9 +40,9 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
   /**
    * Return an Array of columns
    */
-  router.get('/tables/:table', (req, res) => {
+  router.get('/database/tables/:table', (req, res) => {
 
-    LOGGER.debug(`GET /tables/${req.params.table} (columns list)`);
+    LOGGER.debug(`GET /database/tables/${req.params.table} (columns list)`);
     pgClient.query('SELECT * FROM information_schema.columns WHERE table_schema = $1 AND table_name = $2',
       [pgOptions.pgschema, req.params.table], (err, result) => {
         if (err) {
@@ -60,9 +60,9 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
    * Creates a namespace
    * TODO: it does not do anything, since the current implementation uses function names
    */
-  router.post('/', (req, res) => {
+  router.post('/function/namespaces', (req, res) => {
 
-    LOGGER.debug(`POST ${req.params.namespace} (create namespace)`);
+    LOGGER.debug(`POST /function/namespaces ${req.params.namespace} (create namespace)`);
     if (req.body.name) {
       lib.headers(res).status(200).json({message: `Namespace ${req.body.name} created`});
     } else {
@@ -73,8 +73,8 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
   /**
    * List namespaces
    */
-  router.get('/', (req, res) => {
-    LOGGER.debug(`GET ${req.params.namespace} (list namespaces)`);
+  router.get('/function/namespaces', (req, res) => {
+    LOGGER.debug(`GET /function/namespaces (list namespaces)`);
     http.request(_.extend(_.clone(ofOptions), {method: 'GET', path: '/system/functions'}),
       (ofRes) => {
         let body = '';
@@ -100,8 +100,8 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
   /**
    * Deletes a namespace
    */
-  router.delete('/:namespace', (req, res) => {
-    LOGGER.debug(`DELETE ${req.params.namespace} (namespace deletion)`);
+  router.delete('/function/namespaces/:namespace', (req, res) => {
+    LOGGER.debug(`DELETE /function/namespaces/${req.params.namespace} (namespace deletion)`);
     http.request(_.extend(_.clone(ofOptions), {method: 'GET', path: '/system/functions'}),
       (ofRes) => {
         let body = '';
@@ -146,9 +146,9 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
   /**
    * List functions in a namespace
    */
-  router.get('/:namespace', (req, res) => {
+  router.get('/function/namespaces/:namespace', (req, res) => {
 
-    LOGGER.debug(`GET ${req.params.namespace} (functions list)`);
+    LOGGER.debug(`GET /function/namespaces/${req.params.namespace} (functions list)`);
     http.request(_.extend(_.clone(ofOptions), {method: 'GET', path: '/system/functions'}),
       (ofRes) => {
         let body = '';
@@ -172,8 +172,8 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
   /**
    * Details of a function
    */
-  router.get('/:namespace/:name', (req, res) => {
-    LOGGER.debug(`GET ${req.params.namespace}/${req.params.name} (function detail)`);
+  router.get('/function/namespaces/:namespace/:name', (req, res) => {
+    LOGGER.debug(`GET /function/namespaces/${req.params.namespace}/${req.params.name} (function detail)`);
     http.request(_.extend(_.clone(ofOptions),
       {
         method: 'GET',
@@ -205,9 +205,9 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
   /**
    * Creates a function
    */
-  router.post('/:namespace', (req, res) => {
+  router.post('/function/namespaces/:namespace', (req, res) => {
 
-    LOGGER.debug(`POST ${req.params.namespace} ${req.body.name} (function creation)`);
+    LOGGER.debug(`POST /function/namespaces/${req.params.namespace} ${req.body.name} (function creation)`);
 
     // Check input parameters
     if (!req.body.name || !req.body.sourcecode || !req.body.test || !req.body.test.verb) {
@@ -244,9 +244,9 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
   /**
    * Updates a function
    */
-  router.put('/:namespace/:name', (req, res) => {
+  router.put('/function/namespaces/:namespace/:name', (req, res) => {
 
-    LOGGER.debug(`PUT ${req.params.namespace} ${req.params.name} (function update)`);
+    LOGGER.debug(`PUT /function/namespaces/${req.params.namespace} ${req.params.name} (function update)`);
 
     // Check input parameters
     if (!req.params.name || !req.body.sourcecode || !req.body.test || !req.body.test.verb) {
@@ -279,9 +279,9 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
   /**
    * Deletes a function
    */
-  router.delete('/:namespace/:name', (req, res) => {
+  router.delete('/function/namespaces/:namespace/:name', (req, res) => {
 
-    LOGGER.debug(`DELETE ${req.params.namespace}/${req.params.name} (function deletion)`);
+    LOGGER.debug(`DELETE /function/namespaces/${req.params.namespace}/${req.params.name} (function deletion)`);
 
     const bodyReq = JSON.stringify({
       functionName: lib.composeFunctionName(req.params.namespace, req.params.name)
@@ -304,9 +304,9 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
   /**
    * Invokes a function
    */
-  router.post('/:namespace/:name', (req, res) => {
+  router.post('/function/namespaces/:namespace/:name', (req, res) => {
 
-    LOGGER.debug(`POST ${req.params.namespace}/${req.params.name} ${req.body.verb}(function invocation)`);
+    LOGGER.debug(`POST /function/namespaces/${req.params.namespace}/${req.params.name} ${req.body.verb}(function invocation)`);
 
     // Check input parameters
     if (!req.body.verb) {
