@@ -9,17 +9,17 @@ const {Client} = require('pg');
 const nameSep = '___';
 const nameRE = '^([a-z0-9])+$';
 let config;
-let client;
 
 module.exports = {
 
   /**
-   * Initializartion
+   * Initialization
    * @param configIn (Object) flat object with name of property - value
    * @returns {Logger}
    */
   init: (configIn) => {
     config = configIn;
+
     log4js.configure({
       appenders: {
         file: {type: 'file', filename: config.logfile, maxLogSize: 10 * 1024 * 1024},
@@ -43,9 +43,6 @@ module.exports = {
       .on('exit', () => {
         log4js.getLogger().info(`pgFaas ${pack.version} about to shut down`);
       });
-
-    // TODO
-//    client= module.exports.connectToPG(config);
 
     return log4js.getLogger();
   },
@@ -89,7 +86,7 @@ module.exports = {
    * @param name String Function name
    * @param sourcecode String Function script
    * @param test String Test data
-   * @return (String|Object) body
+   * @return (String) body
    */
   setFunctionBody: (name, sourcecode, test) => {
     return JSON.stringify({
@@ -179,7 +176,7 @@ module.exports = {
    * @return Object Enriched server response
    */
   processResponse: (res, ofRes, body) => {
-    log4js.getLogger().debug(`Response status from OpenFaas: ${ofRes.statusCode} body: ${JSON.stringify(module.exports.processBody(body))}`);
+    log4js.getLogger().debug(`Response status from upstream service: ${ofRes.statusCode} body: ${JSON.stringify(module.exports.processBody(body))}`);
     const bodyOut = module.exports.processBody(body);
     bodyOut.name = module.exports.splitFunctionName(bodyOut.name).name;
     bodyOut.service = module.exports.splitFunctionName(bodyOut.service).name;
@@ -189,9 +186,15 @@ module.exports = {
   /**
    * Connects to PostgreSQL
    */
-  connectToPG: ({pghost, pgport, pgdatabase, pguser, pgpassword}) => {
-    const client = new Client(options);
-    client.connect();
-    return client;
+  connectToPG: (config) => {
+    pgClient = new Client({
+      user: config.pguser,
+      database: config.pgdatabase,
+      port: config.pgport,
+      host: config.pghost,
+      password: config.pgpassword
+    });
+    pgClient.connect();
+    return pgClient;
   }
 };

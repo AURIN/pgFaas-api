@@ -28,7 +28,7 @@
   },
   "scripts": {
     "utest": "export NODE_ENV=test; mocha --no-colors --timeout 20000 test/unit",
-    "itest": "export NODE_ENV=test; export OPENFAAS_URL='http://103.6.252.7:8080'; mocha --no-colors --timeout 60000 test/integration ",
+    "itest": "export NODE_ENV=test; export OPENFAAS_URL='http://103.6.252.7:8080'; export PGHOST='172.17.0.2'; export PGUSER='postgres';export PGPASSWORD='postgres'; mocha --no-colors --timeout 60000 test/integration ",
     "deploytest": "mocha --no-colors --timeout 60000 test/deployment",
     "start": "node ./server/app.js --openfaas http://103.6.252.7:8080"
   }

@@ -19,17 +19,21 @@ const LOGGER = lib.init(config);
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
-app.use('/', require('./api.js')(lib.init(config), _.extend(_.clone(new url.URL(config.openfaas)),
-  {
-    path: '/system/functions',
-    auth:config.openfaasauth,
-    timeout: 60000,
-    headers: {
-      'Accept': '*/*',
-      'Cache-Control': 'no-cache',
-      'Content-Type': 'application/json',
-    }
-  })
+app.use('/', require('./api.js')(
+  lib.init(config),
+  lib.connectToPG(config),
+  config,
+  _.extend(_.clone(new url.URL(config.openfaas)),
+    {
+      path: '/system/functions',
+      auth: config.openfaasauth,
+      timeout: 60000,
+      headers: {
+        'Accept': '*/*',
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'application/json',
+      }
+    })
 ));
 
 /**

@@ -94,6 +94,13 @@ const config = convict({
     default: 'pgfaas',
     env: 'PGPASSWORD',
     arg: 'pgpassword'
+  },
+  pgschema: {
+    doc: 'PostgreSQL schema the use4r has access to.',
+    format: '*',
+    default: 'public',
+    env: 'PGSCHEMA',
+    arg: 'pgschema'
   }
 });
 

@@ -10,7 +10,7 @@ const {eachSeries} = require('async');
 const http = require('http');
 const lib = require('./lib.js');
 
-module.exports = (LOGGER, ofOptions) => {
+module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
 
   /**
    * Returns version information
@@ -20,12 +20,49 @@ module.exports = (LOGGER, ofOptions) => {
   });
 
   /**
+   * Return an Array of tables
+   */
+  router.get('/tables/', (req, res) => {
+
+    LOGGER.debug(`GET /tables (tables list)`);
+    pgClient.query('SELECT * FROM pg_catalog.pg_tables WHERE schemaname = $1',
+      [pgOptions.pgschema], (err, result) => {
+        if (err) {
+          return lib.processResponse(res, {statusCode: 500}, JSON.stringify(err));
+        } else
+          return lib.processResponse(res, {statusCode: 200},
+            _.map(result.rows, (table) => {
+              return `${table.tablename}`;
+            }).sort());
+      });
+  });
+
+  /**
+   * Return an Array of columns
+   */
+  router.get('/tables/:table', (req, res) => {
+
+    LOGGER.debug(`GET /tables/${req.params.table} (columns list)`);
+    pgClient.query('SELECT * FROM information_schema.columns WHERE table_schema = $1 AND table_name = $2',
+      [pgOptions.pgschema, req.params.table], (err, result) => {
+        if (err) {
+          return lib.processResponse(res, {statusCode: 500}, JSON.stringify(err));
+        } else if (result.rows.length === 0) {
+          return lib.processResponse(res, {statusCode: 404}, "Table not found");
+        }
+        return lib.processResponse(res, {statusCode: 200}, _.map(result.rows, (column) => {
+          return `${column.column_name}(${column.data_type})`;
+        }).sort());
+      });
+  });
+
+  /**
    * Creates a namespace
    * TODO: it does not do anything, since the current implementation uses function names
    */
   router.post('/', (req, res) => {
-    LOGGER.debug(`POST ${req.params.namespace} (create namespace)`);
 
+    LOGGER.debug(`POST ${req.params.namespace} (create namespace)`);
     if (req.body.name) {
       lib.headers(res).status(200).json({message: `Namespace ${req.body.name} created`});
     } else {
@@ -185,8 +222,8 @@ module.exports = (LOGGER, ofOptions) => {
 
     const bodyReq = lib.setFunctionBody(
       lib.composeFunctionName(req.params.namespace, req.body.name),
-      req.body.sourcecode, req.body.test);
-
+      req.body.sourcecode,
+      req.body.test);
     http.request(_.extend(_.clone(ofOptions), {
         method: 'POST',
         path: '/system/functions',
