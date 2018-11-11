@@ -36,7 +36,7 @@ const config = convict({
     doc: 'The log type.',
     format: ['stdout', 'file'],
     default: 'stdout',
-    env: 'PORT',
+    env: 'PGFAAS_LOGTYPE',
     arg: 'logtype'
   },
   logfile: {
@@ -56,7 +56,7 @@ const config = convict({
   image: {
     doc: 'Base Docker image name',
     format: '*',
-    default: 'cuttlefish.eresearch.unimelb.edu.au/pgfaas-node:latest',
+    default: 'lmorandini/pgfaas-node:latest',
     env: 'PGFAAS_IMAGE',
     arg: 'image'
   },

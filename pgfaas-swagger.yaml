@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  version: "1.0"
+  version: "0.7.0"
   title: "pgFaas"
   license:
     name: "Apache 2.0"
@@ -13,6 +13,17 @@ schemes:
 
 paths:
 
+  /version:
+    get:
+      summary: "API version"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Version"
+
   /database/tables:
     get:
       summary: "Tables in the database"
@@ -23,7 +34,7 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/ArrayOfStrings"
-              
+
   /database/tables/{table}:
     parameters:
       - name: "table"
@@ -44,7 +55,7 @@ paths:
           description: "table not found"
           schema:
             $ref: "#/definitions/Message"
-          
+
   /function/namespaces:
     get:
       summary: "List the namespaces"
@@ -88,7 +99,7 @@ paths:
           description: "error"
           schema:
             $ref: "#/definitions/Message"
-          
+
   /function/namespaces/{namespace}:
     parameters:
       - name: "namespace"
@@ -121,9 +132,9 @@ paths:
         201:
           description: "successful creation"
           schema:
-            $ref: "#/definitions/Function"        
+            $ref: "#/definitions/Function"
         400:
-          description: "invalid parameter"      
+          description: "invalid parameter"
           schema:
             $ref: "#/definitions/Message"
     delete:
@@ -136,7 +147,7 @@ paths:
           schema:
             $ref: "#/definitions/Message"
         404:
-          description: "namespace not found" 
+          description: "namespace not found"
           schema:
             $ref: "#/definitions/Message"
 
@@ -162,7 +173,7 @@ paths:
           schema:
             $ref: "#/definitions/Function"
         404:
-          description: "namespace or function not found" 
+          description: "namespace or function not found"
           schema:
             $ref: "#/definitions/Message"
     put:
@@ -173,7 +184,7 @@ paths:
         200:
           description: "successful operation"
         404:
-          description: "namespace not found" 
+          description: "namespace not found"
     delete:
       summary: "Deletes a function"
       produces:
@@ -184,7 +195,7 @@ paths:
           schema:
             $ref: "#/definitions/Message"
         404:
-          description: "namespace not found" 
+          description: "namespace not found"
           schema:
             $ref: "#/definitions/Message"
     post:
@@ -204,13 +215,18 @@ paths:
         200:
           description: "successful operaiton"
           schema:
-            type: "object"        
+            type: "object"
         500:
-          description: "error"      
+          description: "error"
           schema:
             $ref: "#/definitions/Message"
 
 definitions:
+  Version:
+    type: "object"
+    properties:
+      version:
+        type: "string"
   ArrayOfStrings:
     type: "array"
     items:
