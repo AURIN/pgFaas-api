@@ -133,7 +133,7 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
               if (err) {
                 LOGGER.error(err.message);
               }
-              return lib.headers(res).status(200).json({message: `Namespace ${req.params.namespace} deleted`});
+              return lib.headers(res).status(202).json({message: `Namespace ${req.params.namespace} about to be deleted`});
             });
           } else {
             return lib.processResponse(res, ofRes, body);

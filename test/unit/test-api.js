@@ -210,7 +210,7 @@ describe('API', () => {
           body += chunk;
         });
         res.on('end', () => {
-          assert.equal(res.statusCode, 200);
+          assert.equal(res.statusCode, 202);
           done();
         });
       }

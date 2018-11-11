@@ -142,7 +142,7 @@ paths:
       produces:
       - "application/json"
       responses:
-        200:
+        202:
           description: "successful operation"
           schema:
             $ref: "#/definitions/Message"
@@ -181,7 +181,7 @@ paths:
       produces:
       - "application/json"
       responses:
-        200:
+        202:
           description: "successful operation"
         404:
           description: "namespace not found"
@@ -190,7 +190,7 @@ paths:
       produces:
       - "application/json"
       responses:
-        200:
+        202:
           description: "successful operation"
           schema:
             $ref: "#/definitions/Message"

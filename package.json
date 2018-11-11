@@ -1,6 +1,6 @@
 {
   "name": "pgfaas-api",
-  "version": "0.7.0-SNAPSHOT",
+  "version": "0.7.0",
   "description": "pgFaas API",
   "key-words": [],
   "author": "",

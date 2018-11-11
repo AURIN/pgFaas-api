@@ -10,7 +10,7 @@ The API of pgFaas allows to deploy/update and delete pgFaas functions through a 
 * Mocha 2.5.x (globally installed)
 
 
-## Configuraiton
+## Configuration
 
 The `confgiuration.sh` file may be modified to tailer the settings.
 
