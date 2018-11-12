@@ -8,6 +8,8 @@ The API of pgFaas allows to deploy/update and delete pgFaas functions through a 
 * Node.js 8.11.x
 * NPM 5.6
 * Mocha 2.5.x (globally installed)
+* Docker engine 17.12.x (optional)
+* A Docker registry (optional)
 
 
 ## Configuration

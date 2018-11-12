@@ -189,6 +189,8 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
             // Moves sourcecode and test from the annotations property to root,
             // drops namespace from function name
             const bodyJson = lib.processBody(body);
+            bodyJson.namespace = lib.splitFunctionName(bodyJson.name).namespace;
+            bodyJson.name = lib.splitFunctionName(bodyJson.name).name;
             bodyJson.sourcecode = bodyJson.annotations.sourcecode;
             bodyJson.test = bodyJson.annotations.test;
             delete bodyJson.annotations.sourcecode;
@@ -235,7 +237,7 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
           body += chunk;
         });
         ofRes.on('end', () => {
-          return lib.processResponse(res, {statusCode: 201}, body);
+          return lib.processResponse(res, {statusCode: (ofRes.statusCode === 200 ? 201 : ofRes.statusCode)}, body);
         });
       }
     ).end(bodyReq);

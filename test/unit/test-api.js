@@ -68,6 +68,7 @@ describe('API', () => {
 
   before((done) => {
     const config = require('../../config/config.js').getProperties();
+    config.logtype= 'file';
     const express = require('express');
     const app = express();
     app.use(express.urlencoded({extended: true}));
@@ -382,7 +383,8 @@ describe('API', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          assert.equal(JSON.parse(body).name, "pgfaasexpress");
+          assert.equal(JSON.parse(body).namespace, 'simple');
+          assert.equal(JSON.parse(body).name, 'pgfaasexpress');
           assert.equal(true, _.isString(JSON.parse(body).sourcecode));
           assert.equal(1, JSON.parse(JSON.parse(body).test).a);
           assert.equal(2, JSON.parse(JSON.parse(body).test).b);
