@@ -179,6 +179,8 @@ describe('API', () => {
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
           assert.equal(JSON.parse(body).length, 3);
+          assert.equal(JSON.parse(body)[0].name, 'inception');
+          assert.equal(JSON.parse(body)[0].namespace, 'simple');
           done();
         });
       }

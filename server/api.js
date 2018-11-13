@@ -157,7 +157,7 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
         });
         ofRes.on('end', () => {
           if (ofRes.statusCode === 200) {
-            return lib.processResponse(res, ofRes, _.filter(JSON.parse(body), (func) => {
+            return lib.processFunctionListResponse(res, ofRes, _.filter(JSON.parse(body), (func) => {
               return lib.splitFunctionName(func.name).namespace === req.params.namespace;
             }).sort());
           } else {

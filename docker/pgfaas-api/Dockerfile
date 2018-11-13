@@ -4,7 +4,7 @@
 
 FROM node:8.9.4-alpine
 
-ENV PGFAAS_GIT_TAG "v0.8.0"
+ENV PGFAAS_GIT_TAG "v0.8.1"
 
 RUN addgroup -S app && adduser -S -g app app
 RUN apk update

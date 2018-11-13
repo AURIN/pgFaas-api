@@ -178,8 +178,26 @@ module.exports = {
   processResponse: (res, ofRes, body) => {
     log4js.getLogger().debug(`Response status from upstream service: ${ofRes.statusCode} body: ${JSON.stringify(module.exports.processBody(body))}`);
     const bodyOut = module.exports.processBody(body);
-    bodyOut.name = module.exports.splitFunctionName(bodyOut.name).name;
-    bodyOut.service = module.exports.splitFunctionName(bodyOut.service).name;
+//    bodyOut.name = module.exports.splitFunctionName(bodyOut.name).name;
+//    bodyOut.service = module.exports.splitFunctionName(bodyOut.service).name;
+    return module.exports.headers(res).status(ofRes.statusCode).json(module.exports.processBody(body));
+  },
+
+  /**
+   * Processes OpenFaas function list and adds it to the server response
+   * @param res Object Server response
+   * @param ofRes Object OpenFaas response
+   * @param body String/Object Body returned by OpenFaas
+   * @return Object Enriched server response
+   */
+  processFunctionListResponse: (res, ofRes, body) => {
+    log4js.getLogger().debug(`Response status from upstream service: ${ofRes.statusCode} body: ${JSON.stringify(module.exports.processBody(body))}`);
+    const bodyOut = _.map(module.exports.processBody(body), (func) => {
+      return _.extend(func, {
+        namespace: module.exports.splitFunctionName(func.name).namespace,
+        name: module.exports.splitFunctionName(func.name).name
+      });
+    });
     return module.exports.headers(res).status(ofRes.statusCode).json(module.exports.processBody(body));
   },
 

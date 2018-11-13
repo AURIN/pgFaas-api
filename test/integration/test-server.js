@@ -152,6 +152,8 @@ describe('pgFaas server', () => {
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
           assert.equal(JSON.parse(body).length, 1);
+          assert.equal(JSON.parse(body)[0].namespace, 'testns');
+          assert.equal(JSON.parse(body)[0].name, 'pgfaasexpress');
           done();
         });
       }
