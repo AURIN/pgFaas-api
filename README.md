@@ -115,7 +115,7 @@ Push to registry:
   docker push ${DOCKER_REGISTRY}/pgfaas-api:${PGFAAS_API_VERSION}
 ```
 
-Create and run a Docker container (it relies on an OpenFass service and a database server):
+Create and run a Docker container (it relies on an OpenFaas service and a database server):
 ```bash
   docker create\
     --env NODE_ENV=production\
