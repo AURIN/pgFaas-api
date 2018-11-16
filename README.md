@@ -61,7 +61,7 @@ In addition, a PostgreSQL instance has to be deployed and be accessbile from the
    
 #### Loading of test data
     
-Download of data from OSM, then loading into PostGIS (assuming the container IP address is 172.17.0.2)
+Download of a smal dataset from OpenStreetMap, then loading into PostGIS (assuming the container IP address is 172.17.0.2)
 
 ```
 curl -XGET "http://download.geofabrik.de/australia-oceania/new-caledonia-latest.osm.bz2"\

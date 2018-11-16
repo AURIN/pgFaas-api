@@ -5,8 +5,11 @@
       {
         "statusCode": 200,
         "body": {}
+      },
+      {
+        "statusCode": 200,
+        "body": {}
       }
-
     ]
   },
   "GET/system/functions": {

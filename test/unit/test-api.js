@@ -189,7 +189,7 @@ describe('API', () => {
 
   it('Namespace creation #1', (done) => {
     const payload = {
-      name: 'simple',
+      namespace: 'simple',
     };
     http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces', method: 'POST'}),
       (res) => {
@@ -198,7 +198,7 @@ describe('API', () => {
           body += chunk;
         });
         res.on('end', () => {
-          assert.equal(res.statusCode, 201);
+          assert.equal(res.statusCode, 202);
           done();
         });
       }
@@ -334,7 +334,7 @@ describe('API', () => {
           body += chunk;
         });
         res.on('end', () => {
-          assert.equal(res.statusCode, 201);
+          assert.equal(res.statusCode, 202);
           setTimeout(done, 500);
         });
       }

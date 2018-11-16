@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  version: "0.7.0"
+  version: "0.9.0"
   title: "pgFaas"
   license:
     name: "Apache 2.0"
@@ -67,7 +67,7 @@ paths:
           schema:
             $ref: "#/definitions/ArrayOfStrings"
     post:
-      summary: "Add a namespace (IT DOES NOTHING, SO FAR)"
+      summary: "Add a namespace"
       consumes:
       - "application/json"
       produces:
@@ -80,7 +80,7 @@ paths:
         schema:
           $ref: "#/definitions/Namespace"
       responses:
-        200:
+        202:
           description: "successful operation"
           schema:
             $ref: "#/definitions/Message"
@@ -129,7 +129,7 @@ paths:
         schema:
           $ref: "#/definitions/Function"
       responses:
-        201:
+        202:
           description: "successful creation"
           schema:
             $ref: "#/definitions/Function"
@@ -213,7 +213,11 @@ paths:
           type: "object"
       responses:
         200:
-          description: "successful operaiton"
+          description: "successful operation"
+          schema:
+            type: "object"
+        404:
+          description: "missing function"
           schema:
             type: "object"
         500:

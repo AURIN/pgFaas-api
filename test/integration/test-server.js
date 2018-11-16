@@ -83,9 +83,9 @@ describe('pgFaas server', () => {
     ).end();
   });
 
-  it('Namespace creation #1', (done) => {
+  it('Namespace creation', (done) => {
     const payload = {
-      name: 'simple',
+      namespace: 'echons',
     };
     http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces', method: 'POST'}),
       (res) => {
@@ -94,7 +94,26 @@ describe('pgFaas server', () => {
           body += chunk;
         });
         res.on('end', () => {
-          assert.equal(res.statusCode, 201);
+          assert.equal(res.statusCode, 202);
+          setTimeout(done, 15000);
+        });
+      }
+    ).end(JSON.stringify(payload));
+  });
+
+  it('Dummy function of a newly created namespace invocation (success)', (done) => {
+    const payload = {
+      verb: 'echo', message:'Hello world!'
+    };
+    http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/echons/echo', method: 'POST'}),
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          assert.equal(res.statusCode, 200);
+          assert.equal(JSON.parse(body).message, 'Hello world!');
           done();
         });
       }
@@ -114,8 +133,8 @@ describe('pgFaas server', () => {
           body += chunk;
         });
         res.on('end', () => {
-          assert.equal(res.statusCode, 201);
-          setTimeout(done, 20000);
+          assert.equal(res.statusCode, 202);
+          setTimeout(done, 15000);
         });
       }
     ).end(JSON.stringify(payload));
@@ -136,7 +155,7 @@ describe('pgFaas server', () => {
         res.on('end', () => {
           assert.equal(res.statusCode, 400);
           assert.equal(body.includes('name conflicts with an existing object'), true);
-          setTimeout(done, 20000);
+          setTimeout(done, 15000);
         });
       }
     ).end(JSON.stringify(payload));
@@ -169,7 +188,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          assert.equal(JSON.parse(body).length, 1);
+          assert.equal(JSON.parse(body).length, 2);
           done();
         });
       }
@@ -185,7 +204,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 202);
-          setTimeout(done, 20000);
+          setTimeout(done, 15000);
         });
       }
     ).end();
@@ -220,8 +239,8 @@ describe('pgFaas server', () => {
           body += chunk;
         });
         res.on('end', () => {
-          assert.equal(res.statusCode, 201);
-          setTimeout(done, 20000);
+          assert.equal(res.statusCode, 202);
+          setTimeout(done, 15000);
         });
       }
     ).end(JSON.stringify(payload));
@@ -236,7 +255,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          assert.equal(JSON.parse(body).length, 1);
+          assert.equal(JSON.parse(body).length, 2);
           assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
           assert.equal(res.headers['access-control-allow-origin'], '*');
           done();
@@ -322,7 +341,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          setTimeout(done, 20000);
+          setTimeout(done, 15000);
         });
       }
     ).end();
@@ -341,8 +360,8 @@ describe('pgFaas server', () => {
           body += chunk;
         });
         res.on('end', () => {
-          assert.equal(res.statusCode, 201);
-          setTimeout(done, 20000);
+          assert.equal(res.statusCode, 202);
+          setTimeout(done, 15000);
         });
       }
     ).end(JSON.stringify(payload));
@@ -432,7 +451,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          setTimeout(done, 20000);
+          setTimeout(done, 15000);
         });
       }
     ).end(JSON.stringify(payload));
@@ -458,7 +477,22 @@ describe('pgFaas server', () => {
     ).end();
   });
 
-  it('Function delete #1', (done) => {
+  it('Function delete #2', (done) => {
+    http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/echons/echo', method: 'DELETE'}),
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          assert.equal(res.statusCode, 200);
+          setTimeout(done, 15000);
+        });
+      }
+    ).end();
+  });
+
+  it('Function delete #3', (done) => {
     http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple/pgfaasexpress', method: 'DELETE'}),
       (res) => {
         let body = '';
@@ -467,14 +501,29 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          setTimeout(done, 20000);
+          setTimeout(done, 15000);
         });
       }
     ).end();
   });
 
-  /* FIXME
-  it('Function invocation #3 (missing)', (done) => {
+  it('Namespaces list #3', (done) => {
+    http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/', method: 'GET'}),
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          assert.equal(res.statusCode, 200);
+          assert.equal(JSON.parse(body).length, 0);
+          done();
+        });
+      }
+    ).end();
+  });
+
+  it('Function invocation #3 (missing function)', (done) => {
     http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple/pgfaasexpress', method: 'POST'}),
       (res) => {
         let body = '';
@@ -488,5 +537,5 @@ describe('pgFaas server', () => {
       }
     ).end(JSON.stringify({verb: 'echo'}));
   });
-*/
+
 });

@@ -57,14 +57,31 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
   });
 
   /**
-   * Creates a namespace
-   * TODO: it does not do anything, since the current implementation uses function names
+   * Creates a namespace and adds a dummy function ("echo")
    */
   router.post('/function/namespaces', (req, res) => {
 
-    LOGGER.debug(`POST /function/namespaces ${req.params.namespace} (create namespace)`);
-    if (req.body.name) {
-      lib.headers(res).status(201).json({message: `Namespace ${req.body.name} created`});
+    LOGGER.debug(`POST /function/namespaces ${req.body.namespace} (create namespace)`);
+    if (req.body.namespace) {
+      const bodyReq = lib.setFunctionBody(
+        lib.composeFunctionName(req.body.namespace, "echo"),
+        `module.exports = {echo: (sqlexec, req, callback) => {return callback(null, req.body);}};`,
+        `{"verb":"echo", "message":"Hello world!"}`);
+      http.request(_.extend(_.clone(ofOptions), {
+          method: 'POST',
+          path: '/system/functions',
+          headers: lib.setContentLength(ofOptions.headers, bodyReq)
+        }),
+        (ofRes) => {
+          let body = '';
+          ofRes.on('data', (chunk) => {
+            body += chunk;
+          });
+          ofRes.on('end', () => {
+            return lib.processResponse(res, {statusCode: (ofRes.statusCode === 200 ? 202 : ofRes.statusCode)}, body);
+          });
+        }
+      ).end(bodyReq);
     } else {
       lib.headers(res).status(400).json({message: "Missing parameter"});
     }
@@ -237,7 +254,7 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
           body += chunk;
         });
         ofRes.on('end', () => {
-          return lib.processResponse(res, {statusCode: (ofRes.statusCode === 200 ? 201 : ofRes.statusCode)}, body);
+          return lib.processResponse(res, {statusCode: (ofRes.statusCode === 200 ? 202 : ofRes.statusCode)}, body);
         });
       }
     ).end(bodyReq);
@@ -308,7 +325,7 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
    */
   router.post('/function/namespaces/:namespace/:name', (req, res) => {
 
-    LOGGER.debug(`POST /function/namespaces/${req.params.namespace}/${req.params.name} ${req.body.verb}(function invocation)`);
+    LOGGER.debug(`POST /function/namespaces/${req.params.namespace}/${req.params.name} verb:${req.body.verb} (function invocation)`);
 
     // Check input parameters
     if (!req.body.verb) {
@@ -327,7 +344,7 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
         body += chunk;
       });
       ofRes.on('end', () => {
-        return lib.processResponse(res, ofRes, body);
+        return lib.processResponse(res, {statusCode: (ofRes.statusCode === 502 ? 404 : ofRes.statusCode)}, body);
       });
     }).end(bodyReq);
   });
