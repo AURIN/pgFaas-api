@@ -61,10 +61,10 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
    */
   router.post('/function/namespaces', (req, res) => {
 
-    LOGGER.debug(`POST /function/namespaces ${req.body.namespace} (create namespace)`);
-    if (req.body.namespace) {
+    LOGGER.debug(`POST /function/namespaces ${req.body.name} (create namespace)`);
+    if (req.body.name) {
       const bodyReq = lib.setFunctionBody(
-        lib.composeFunctionName(req.body.namespace, "echo"),
+        lib.composeFunctionName(req.body.name, "echo"),
         `module.exports = {echo: (sqlexec, req, callback) => {return callback(null, req.body);}};`,
         `{"verb":"echo", "message":"Hello world!"}`);
       http.request(_.extend(_.clone(ofOptions), {

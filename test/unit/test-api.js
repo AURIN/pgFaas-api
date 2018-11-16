@@ -189,7 +189,7 @@ describe('API', () => {
 
   it('Namespace creation #1', (done) => {
     const payload = {
-      namespace: 'simple',
+      name: 'simple',
     };
     http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces', method: 'POST'}),
       (res) => {

@@ -85,7 +85,7 @@ describe('pgFaas server', () => {
 
   it('Namespace creation', (done) => {
     const payload = {
-      namespace: 'echons',
+      name: 'echons',
     };
     http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces', method: 'POST'}),
       (res) => {
