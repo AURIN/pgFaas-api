@@ -101,6 +101,41 @@ const config = convict({
     default: 'public',
     env: 'PGSCHEMA',
     arg: 'pgschema'
+  },
+  scalemin: {
+    doc: 'Minimum number of function replicas.',
+    format: 'Number',
+    default: 1,
+    env: 'SCALEMAX',
+    arg: 'scalemax'
+  },
+  scalemax: {
+    doc: 'Maximum number of function replicas.',
+    format: 'Number',
+    default: 12,
+    env: 'SCALEMIN',
+    arg: 'scalemin'
+  },
+  scalefactor: {
+    doc: 'Percentages of max.replicas to add when scaling.',
+    format: 'Number',
+    default: 25,
+    env: 'SCALEFACTOR',
+    arg: 'scalefactor'
+  },
+  limitsmemory: {
+    doc: 'Maximum RAM per function.',
+    format: 'String',
+    default: "256M",
+    env: 'LIMITSMEMORY',
+    arg: 'limitsmemory'
+  },
+  limitscpu: {
+    doc: 'Maximum fraction of CPU per function.',
+    format: 'Number',
+    default: 0.1,
+    env: 'LIMITSCPU',
+    arg: 'limitscpu'
   }
 });
 

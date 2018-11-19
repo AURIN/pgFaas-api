@@ -1,5 +1,6 @@
 const assert = require('assert');
 const http = require('http');
+const {parallelLimit} = require('async');
 const _ = require('underscore');
 const {spawn, exec, fork} = require('child_process');
 const httpOptions = {
@@ -95,7 +96,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 202);
-          setTimeout(done, 15000);
+          setTimeout(done, 20000);
         });
       }
     ).end(JSON.stringify(payload));
@@ -103,7 +104,7 @@ describe('pgFaas server', () => {
 
   it('Dummy function of a newly created namespace invocation (success)', (done) => {
     const payload = {
-      verb: 'echo', message:'Hello world!'
+      verb: 'echo', message: 'Hello world!'
     };
     http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/echons/echo', method: 'POST'}),
       (res) => {
@@ -134,7 +135,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 202);
-          setTimeout(done, 15000);
+          setTimeout(done, 20000);
         });
       }
     ).end(JSON.stringify(payload));
@@ -155,7 +156,7 @@ describe('pgFaas server', () => {
         res.on('end', () => {
           assert.equal(res.statusCode, 400);
           assert.equal(body.includes('name conflicts with an existing object'), true);
-          setTimeout(done, 15000);
+          setTimeout(done, 20000);
         });
       }
     ).end(JSON.stringify(payload));
@@ -189,6 +190,8 @@ describe('pgFaas server', () => {
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
           assert.equal(JSON.parse(body).length, 2);
+          assert.equal(JSON.parse(body)[0], 'echons');
+          assert.equal(JSON.parse(body)[1], 'testns');
           done();
         });
       }
@@ -204,7 +207,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 202);
-          setTimeout(done, 15000);
+          setTimeout(done, 20000);
         });
       }
     ).end();
@@ -240,7 +243,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 202);
-          setTimeout(done, 15000);
+          setTimeout(done, 20000);
         });
       }
     ).end(JSON.stringify(payload));
@@ -341,7 +344,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          setTimeout(done, 15000);
+          setTimeout(done, 20000);
         });
       }
     ).end();
@@ -361,7 +364,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 202);
-          setTimeout(done, 15000);
+          setTimeout(done, 20000);
         });
       }
     ).end(JSON.stringify(payload));
@@ -385,23 +388,32 @@ describe('pgFaas server', () => {
     ).end(JSON.stringify(payload));
   });
 
-  it('Function plus invocation #2 (success)', (done) => {
-    const payload = {
-      verb: 'plus', a: 1, b: 2
-    };
-    http.request(_.extend(_.clone(httpOptions), {path: '/function/namespaces/simple/pgfaasexpress', method: 'POST'}),
-      (res) => {
-        let body = '';
-        res.on('data', (chunk) => {
-          body += chunk;
-        });
-        res.on('end', () => {
-          assert.equal(res.statusCode, 200);
-          assert.equal(JSON.parse(body).c, 3);
-          done();
-        });
-      }
-    ).end(JSON.stringify(payload));
+  it('Function plus invocation #2 (replication success)', (done) => {
+    const reqs = _.times(200, (i) => {
+      return (next) => {
+        http.request(_.extend(_.clone(httpOptions), {
+            path: '/function/namespaces/simple/pgfaasexpress',
+            method: 'POST'
+          }),
+          (res) => {
+            let body = '';
+            res.on('data', (chunk) => {
+              body += chunk;
+            });
+            res.on('end', () => {
+              assert.equal(res.statusCode, 200);
+              assert.equal(JSON.parse(body).c, 3);
+              next(null, res.statusCode);
+            });
+          }).end(JSON.stringify({
+          verb: 'long', a: 1, b: 2
+        }));
+      };
+    });
+    parallelLimit(reqs, 20,
+      (err, results) => {
+        done();
+      });
   });
 
   it('Function details #2', (done) => {
@@ -451,7 +463,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          setTimeout(done, 15000);
+          setTimeout(done, 20000);
         });
       }
     ).end(JSON.stringify(payload));
@@ -486,7 +498,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          setTimeout(done, 15000);
+          setTimeout(done, 20000);
         });
       }
     ).end();
@@ -501,7 +513,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          setTimeout(done, 15000);
+          setTimeout(done, 20000);
         });
       }
     ).end();
@@ -532,6 +544,7 @@ describe('pgFaas server', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 404);
+          assert.equal(JSON.parse(body).message.includes('a little'), true);
           done();
         });
       }

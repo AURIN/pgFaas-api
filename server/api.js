@@ -344,7 +344,11 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
         body += chunk;
       });
       ofRes.on('end', () => {
-        return lib.processResponse(res, {statusCode: (ofRes.statusCode === 502 ? 404 : ofRes.statusCode)}, body);
+        if (ofRes.statusCode === 502 || ofRes.statusCode === 503) {
+          return lib.processResponse(res, {statusCode: 404}, 'The function has not been created yet (origin code ${ofRes.statusCode}). Please  wait a little longer');
+        } else {
+          return lib.processResponse(res, ofRes, body);
+        }
       });
     }).end(bodyReq);
   });

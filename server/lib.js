@@ -1,4 +1,5 @@
 /**
+/**
  * Library used by API server
  */
 
@@ -104,9 +105,9 @@ module.exports = {
         TEST: _.isString(test) ? test : JSON.stringify(test)
       },
       "labels": {
-        "com.openfaas.scale.min": "1",
-        "com.openfaas.scale.max": "2",
-        "com.openfaas.scale.factor": "10",
+        "com.openfaas.scale.min": String(config.scalemin),
+        "com.openfaas.scale.max": String(config.scalemax),
+        "com.openfaas.scale.factor": String(config.scalefactor),
         "com.openfaas.function": name,
         "function": "true"
       },
@@ -115,12 +116,8 @@ module.exports = {
         "test": _.isString(test) ? test : JSON.stringify(test)
       },
       "limits": {
-        "memory": "128M",
-        "cpu": "0.01"
-      },
-      "requests": {
-        "memory": "128M",
-        "cpu": "0.01"
+        "memory": String(config.limitsmemory),
+        "cpu": String(config.limitscpu)
       }
     });
   },
@@ -176,10 +173,8 @@ module.exports = {
    * @return Object Enriched server response
    */
   processResponse: (res, ofRes, body) => {
-    log4js.getLogger().debug(`Response status from upstream service: ${ofRes.statusCode} body: ${JSON.stringify(module.exports.processBody(body))}`);
+    log4js.getLogger().debug(`Response: ${ofRes.statusCode} body: ${JSON.stringify(module.exports.processBody(body))}`);
     const bodyOut = module.exports.processBody(body);
-//    bodyOut.name = module.exports.splitFunctionName(bodyOut.name).name;
-//    bodyOut.service = module.exports.splitFunctionName(bodyOut.service).name;
     return module.exports.headers(res).status(ofRes.statusCode).json(module.exports.processBody(body));
   },
 

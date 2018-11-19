@@ -6,7 +6,7 @@ export PGFAAS_API_VERSION="latest"
 export PGFAAS_NGINX_VERSION="latest"
 
 # OpenFaas instance parameters
-export OPENFAAS_URL="http://103.6.252.60:8080"
+export OPENFAAS_URL="http://dev.pgfaas.aurin.org.au:8080"
 
 # pgFaas server parameters
 export PGFAAS_PORT=3010
