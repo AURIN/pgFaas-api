@@ -6,7 +6,7 @@ export PGFAAS_API_VERSION="latest"
 export PGFAAS_NGINX_VERSION="latest"
 
 # OpenFaas instance parameters
-export OPENFAAS_URL="http://dev.pgfaas.aurin.org.au:8080"
+export OPENFAAS_URL="http://127.0.0.1:8080"
 
 # pgFaas server parameters
 export PGFAAS_PORT=3010
@@ -21,8 +21,8 @@ export OS_USER_DOMAIN_NAME="Default"
 export OS_REGION_NAME="Melbourne"
 export OS_INTERFACE="public"
 export OS_IDENTITY_API_VERSION=3
-
-export PGHOST=10.0.2.27
+export PGHOSTALT=`docker inspect $(docker ps --filter name=postgres --quiet) | grep -i ipaddress\"\: | head -1 | cut -d\" -f 4`
+export PGHOST="10.0.0.32"
 export PGPORT=5432
 export PGDATABASE=postgres
 export PGUSER=postgres

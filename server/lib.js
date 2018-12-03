@@ -1,5 +1,5 @@
 /**
-/**
+ /**
  * Library used by API server
  */
 
@@ -35,9 +35,6 @@ module.exports = {
     });
 
     process
-      .on('unhandledRejection', (reason, p) => {
-        log4js.getLogger().error(`Unhandled Rejection at Promise ${reason} ${JSON.stringify(p)}`);
-      })
       .on('uncaughtException', err => {
         log4js.getLogger().error(`Uncaught Exception thrown ${err.message} ${err.stack}`);
       })
@@ -153,16 +150,29 @@ module.exports = {
    */
   processBody: (body) => {
 
-    let jsonBody = (_.isObject(body)) ? body : {message: ''};
-    if (!_.isUndefined(body) && !_.isNull(body) &&
-      (_.isString(body) && body.length > 3)) {
+    if (_.isUndefined(body) || _.isNull(body)) {
+      return {message: ''};
+    }
+
+    if (_.isObject(body) && !_.isUndefined(body.msg) && _.isString(body.msg)) {
+      return {message: `${body.msg} ${body.code} ${body.stack}`};
+    }
+
+    if (_.isObject(body) && !_.isUndefined(body.message) && _.isString(body.message)) {
+      return {message: `${body.message} ${body.code} ${body.stack}`};
+    }
+
+    if (_.isString(body)) {
+      let jsonBody;
       try {
         jsonBody = JSON.parse(body);
       } catch (e) {
-        jsonBody = {message: body};
+        return {message: `${body}`};
       }
+      return jsonBody;
     }
-    return jsonBody;
+
+    return body;
   },
 
   /**
@@ -204,7 +214,7 @@ module.exports = {
       user: config.pguser,
       database: config.pgdatabase,
       port: config.pgport,
-      host: config.pghost,
+      host: config.pghostalt,
       password: config.pgpassword
     });
     pgClient.connect();

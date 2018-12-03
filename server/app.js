@@ -40,6 +40,11 @@ app.use('/', require('./api.js')(
  * Starts the server
  */
 app.listen(config.port, () => {
-  LOGGER.info(`\n\n\npgFaas ${pack.version} listening on port ${config.port} and deploying on OpenFass at ${config.openfaas}`)
+  LOGGER.info(
+    `\n\n\npgFaas ${pack.version} listening on port ${config.port} 
+  and deploying on OpenFaaS at ${config.openfaas}. 
+  Schema ${config.pgdatabase}.${config.pgschema} hosted on ${config.pghostalt}:${config.pgport} 
+  as user ${config.pguser}
+  Database host used by functions is ${config.pghost}`)
 });
 

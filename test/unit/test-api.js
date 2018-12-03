@@ -68,7 +68,7 @@ describe('API', () => {
 
   before((done) => {
     const config = require('../../config/config.js').getProperties();
-    config.logtype= 'file';
+    config.logtype = 'file';
     const express = require('express');
     const app = express();
     app.use(express.urlencoded({extended: true}));
@@ -92,27 +92,28 @@ describe('API', () => {
   });
 
   it('OpenFaas response processing', (done) => {
-    assert(lib.processBody('Stringy'), {message: 'Stringy'});
-    assert(lib.processBody(), {message: ''});
-    assert(lib.processBody(null), {message: ''});
-    assert(lib.processBody(''), {message: ''});
-    assert(lib.processBody({a: 1}), {message: {a: 1}});
-    assert(lib.processBody('{a:1}'), {message: {a: 1}});
+    assert.deepEqual(lib.processBody('Stringy'), {message: 'Stringy'});
+    assert.deepEqual(lib.processBody(), {message: ''});
+    assert.deepEqual(lib.processBody(null), {message: ''});
+    assert.deepEqual(lib.processBody(''), {message: ''});
+    assert.deepEqual(lib.processBody({a: 1}), {a: 1});
+    assert.deepEqual(lib.processBody('{"a":1}'), {a: 1});
+    assert.deepEqual(lib.processBody('{"a":1 x 2}'), {message: '{"a":1 x 2}'});
     done();
   });
 
   it('Name correctness', (done) => {
-    assert.equal(lib.isNameCorrect('aaaAAA'), false);
-    assert.equal(lib.isNameCorrect('111AAA'), false);
-    assert.equal(lib.isNameCorrect('aaa bbb'), false);
-    assert.equal(lib.isNameCorrect('aaa+bbb'), false);
-    assert.equal(lib.isNameCorrect('aaa/bbb'), false);
-    assert.equal(lib.isNameCorrect('aaa_bbb'), false);
-    assert.equal(lib.isNameCorrect('AAA'), false);
-    assert.equal(lib.isNameCorrect('aaa'), true);
-    assert.equal(lib.isNameCorrect('111'), true);
-    assert.equal(lib.isNameCorrect('aaa111'), true);
-    assert.equal(lib.isNameCorrect('111aaa'), true);
+    assert.deepEqual(lib.isNameCorrect('aaaAAA'), false);
+    assert.deepEqual(lib.isNameCorrect('111AAA'), false);
+    assert.deepEqual(lib.isNameCorrect('aaa bbb'), false);
+    assert.deepEqual(lib.isNameCorrect('aaa+bbb'), false);
+    assert.deepEqual(lib.isNameCorrect('aaa/bbb'), false);
+    assert.deepEqual(lib.isNameCorrect('aaa_bbb'), false);
+    assert.deepEqual(lib.isNameCorrect('AAA'), false);
+    assert.deepEqual(lib.isNameCorrect('aaa'), true);
+    assert.deepEqual(lib.isNameCorrect('111'), true);
+    assert.deepEqual(lib.isNameCorrect('aaa111'), true);
+    assert.deepEqual(lib.isNameCorrect('111aaa'), true);
     done();
   });
 
@@ -158,7 +159,7 @@ describe('API', () => {
         });
         res.on('end', () => {
           assert.equal(res.statusCode, 200);
-          assert.equal(JSON.parse(body).length, 2);
+          assert.equal(JSON.parse(body).length, 2, body);
           assert.equal(JSON.parse(body)[0], 'complex');
           assert.equal(JSON.parse(body)[1], 'simple');
           assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');

@@ -78,7 +78,9 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
             body += chunk;
           });
           ofRes.on('end', () => {
-            return lib.processResponse(res, {statusCode: (ofRes.statusCode === 200 ? 202 : ofRes.statusCode)}, body);
+            return lib.processResponse(res,
+              {statusCode: (ofRes.statusCode === 200 ? 202 : ofRes.statusCode)},
+              (ofRes.statusCode === 202) ? {message: 'Namespace creation in process...'} : body);
           });
         }
       ).end(bodyReq);
@@ -254,7 +256,8 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
           body += chunk;
         });
         ofRes.on('end', () => {
-          return lib.processResponse(res, {statusCode: (ofRes.statusCode === 200 ? 202 : ofRes.statusCode)}, body);
+          return lib.processResponse(res, {statusCode: (ofRes.statusCode === 200 ? 202 : ofRes.statusCode)},
+            (ofRes.statusCode === 202) ? {message: 'Function creation in process...'} : body);
         });
       }
     ).end(bodyReq);
@@ -334,6 +337,7 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
     }
 
     const bodyReq = JSON.stringify(req.body);
+
     http.request(_.extend(_.clone(ofOptions), {
       method: 'POST',
       path: `/function/${lib.composeFunctionName(req.params.namespace, req.params.name)}`,

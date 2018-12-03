@@ -61,11 +61,18 @@ const config = convict({
     arg: 'image'
   },
   pghost: {
-    doc: 'PostfreSQL server IP address.',
+    doc: 'PostgreSQL server IP address used by functions.',
     format: 'ipaddress',
-    default: '10.0.2.17',
+    default: '1.1.1.1',
     env: 'PGHOST',
     arg: 'pghost'
+  },
+  pghostalt: {
+    doc: 'PostgreSQL server IP address used by pgFaaS API.',
+    format: 'ipaddress',
+    default: '1.1.1.1',
+    env: 'PGHOSTALT',
+    arg: 'pghostalt'
   },
   pgport: {
     doc: 'PostgreSQL port',
@@ -141,5 +148,7 @@ const config = convict({
 
 config.loadFile('./config/' + config.get('env') + '.json');
 config.validate({allowed: 'strict'});
+config.set('pghostalt', config.get('pghostalt') == config.default('pghostalt') ?
+  config.get('pghost') : config.get('pghostalt'));
 
 module.exports = config;
