@@ -106,11 +106,6 @@ The API is documented using Swagger in the YAML file `pgfaas-swagger.yaml`. For 
   source ./configuration.sh; source ./secrets.sh
   docker build --tag ${DOCKER_REGISTRY}/pgfaas-api:${PGFAAS_API_VERSION}\
      ./docker/pgfaas-api
-```
-
-Push to registry:
-```bash
-  source ./configuration.sh; source ./secrets.sh
   docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWORD}
   docker push ${DOCKER_REGISTRY}/pgfaas-api:${PGFAAS_API_VERSION}
 ```
