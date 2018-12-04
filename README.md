@@ -28,7 +28,7 @@ This file (not included in the repository for security), has to follow this form
 
 ## Installation
 
-```
+```bash
   npm install
 ```
 
@@ -38,7 +38,7 @@ This file (not included in the repository for security), has to follow this form
 
 ### Unit tests
 
-```
+```bash
   npm run utest
 ```
 
@@ -88,7 +88,7 @@ and put into `PGHOST` in the `configuration.sh` script.
     
 Download of a small dataset from OpenStreetMap, then loading into PostGIS (assuming the container IP address is 172.17.0.2)
 
-```
+```bash
   source ./configuration.sh
   curl -XGET "http://download.geofabrik.de/australia-oceania/new-caledonia-latest.osm.bz2"\
    -o /tmp/new-caledonia-latest.osm.bz2
@@ -98,7 +98,7 @@ Download of a small dataset from OpenStreetMap, then loading into PostGIS (assum
    
 #### Running of integration tests
 
-```
+```bash
   npm run itest
 ```
 
@@ -107,7 +107,7 @@ Download of a small dataset from OpenStreetMap, then loading into PostGIS (assum
 ### Deployment tests
 
 Once a pgFaas API has been deployed on a server, it can be checked running these test cases.
-```
+```bash
   npm run deploytest
 ```
 
@@ -115,7 +115,7 @@ Once a pgFaas API has been deployed on a server, it can be checked running these
 ## Starting the application
 
 The API can run once a OpenFaas instance has been deployed (its URL can be passed on the CLI with the `openfaas` option).
-```
+```bash
   npm run start
 ```
 
