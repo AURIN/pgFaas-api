@@ -56,9 +56,9 @@ If you want to create OpenFaaS on your development machine and use it to test th
 ```bash
   export curr=${PWD}
   cd /tmp
-#  git clone https://github.com/openfaas/faas &&\
-  cd faas &&\
-  ./deploy_stack.sh &&\
+  git clone https://github.com/openfaas/faas
+  cd faas
+  ./deploy_stack.sh
   cd ${curr} 
 ```
 * Test it by pointing your browser to: `http://127.0.0.1:8080` (username and passowrd are printed in the console during OpenFaaS installation).
@@ -71,7 +71,7 @@ If you want to create OpenFaaS on your development machine and use it to test th
 
 In addition, a PostgreSQL instance has to be deployed and be accessible from the server the integreation tests are run on.
 
-```
+```bash
   docker pull mdillon/postgis
   docker run --detach --publish 5432:5432\
     --name postgres\

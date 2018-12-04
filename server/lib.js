@@ -150,16 +150,22 @@ module.exports = {
    */
   processBody: (body) => {
 
+    const composeMessageLog = (msg, code, stack) => {
+      return msg +
+        (!_.isUndefined(code) ? ` code: ${code}` : '') +
+        (!_.isUndefined(stack) ? ` stack: ${stack}` : '');
+    };
+
     if (_.isUndefined(body) || _.isNull(body)) {
       return {message: ''};
     }
 
     if (_.isObject(body) && !_.isUndefined(body.msg) && _.isString(body.msg)) {
-      return {message: `${body.msg} ${body.code} ${body.stack}`};
+      return {message: composeMessageLog(body.msg, body.code, body.stack)};
     }
 
     if (_.isObject(body) && !_.isUndefined(body.message) && _.isString(body.message)) {
-      return {message: `${body.message} ${body.code} ${body.stack}`};
+      return {message: composeMessageLog(body.message, body.code, body.stack)};
     }
 
     if (_.isString(body)) {
@@ -183,7 +189,8 @@ module.exports = {
    * @return Object Enriched server response
    */
   processResponse: (res, ofRes, body) => {
-    log4js.getLogger().debug(`Response: ${ofRes.statusCode} body: ${JSON.stringify(module.exports.processBody(body))}`);
+    log4js.getLogger().debug(`
+      Response: ${ofRes.statusCode} body: ${JSON.stringify(module.exports.processBody(body))}`);
     const bodyOut = module.exports.processBody(body);
     return module.exports.headers(res).status(ofRes.statusCode).json(module.exports.processBody(body));
   },
@@ -196,7 +203,12 @@ module.exports = {
    * @return Object Enriched server response
    */
   processFunctionListResponse: (res, ofRes, body) => {
-    log4js.getLogger().debug(`Response status from upstream service: ${ofRes.statusCode} body: ${JSON.stringify(module.exports.processBody(body))}`);
+    log4js.getLogger().debug(`
+      Response
+      status
+      from
+      upstream
+      service: ${ofRes.statusCode} body: ${JSON.stringify(module.exports.processBody(body))}`);
     const bodyOut = _.map(module.exports.processBody(body), (func) => {
       return _.extend(func, {
         namespace: module.exports.splitFunctionName(func.name).namespace,

@@ -1,6 +1,6 @@
 {
   "name": "pgfaas-api",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "description": "pgFaas API",
   "key-words": [],
   "author": "",
@@ -30,6 +30,6 @@
     "utest": "export NODE_ENV=test; mocha --no-colors --timeout 20000 test/unit",
     "itest": "export NODE_ENV=test; . ./configuration.sh; . ./secrets.sh; mocha --no-colors --timeout 60000 test/integration ",
     "deploytest": "mocha --no-colors --timeout 60000 test/deployment",
-    "start": "node ./server/app.js --openfaas http://103.6.252.7:8080"
+    "start": ". ./configuration.sh; . ./secrets.sh; node ./server/app.js"
   }
 }

@@ -80,7 +80,7 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
           ofRes.on('end', () => {
             return lib.processResponse(res,
               {statusCode: (ofRes.statusCode === 200 ? 202 : ofRes.statusCode)},
-              (ofRes.statusCode === 202) ? {message: 'Namespace creation in process...'} : body);
+              (ofRes.statusCode === 202) ? {message: 'Namespace creation in progress...'} : body);
           });
         }
       ).end(bodyReq);
@@ -257,7 +257,7 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
         });
         ofRes.on('end', () => {
           return lib.processResponse(res, {statusCode: (ofRes.statusCode === 200 ? 202 : ofRes.statusCode)},
-            (ofRes.statusCode === 202) ? {message: 'Function creation in process...'} : body);
+            (ofRes.statusCode === 202) ? {message: 'Function creation in progress...'} : body);
         });
       }
     ).end(bodyReq);
@@ -292,7 +292,8 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
           body += chunk;
         });
         ofRes.on('end', () => {
-          return lib.processResponse(res, ofRes, body);
+          return lib.processResponse(res, {statusCode: (ofRes.statusCode === 200 ? 202 : ofRes.statusCode)},
+            (ofRes.statusCode === 202) ? {message: 'Function update in progress...'} : body);
         });
       }
     ).end(bodyReq);
@@ -318,7 +319,8 @@ module.exports = (LOGGER, pgclient, pgOptions, ofOptions) => {
         body += chunk;
       });
       ofRes.on('end', () => {
-        return lib.processResponse(res, ofRes, body);
+        return lib.processResponse(res, {statusCode: (ofRes.statusCode === 200 ? 202 : ofRes.statusCode)},
+          (ofRes.statusCode === 202) ? {message: 'Function delete in progress...'} : body);
       });
     }).end(bodyReq);
   });
